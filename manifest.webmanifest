@@ -1,0 +1,26 @@
+{
+  "name": "ORIENTA-TE — Comunidade 111",
+  "short_name": "ORIENTA-TE",
+  "description": "Aplicação da Comunidade 111 de Ronfe",
+  "lang": "pt-PT",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#EAF2F8",
+  "theme_color": "#155A93",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

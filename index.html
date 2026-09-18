@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#155A93">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<title>Comunidade 111 - Ronfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1C2126; --ink-soft:#61666B; --line:#DCD8CD;
+    --navy:#1F3A5F; --navy-soft:#E4EAF1;
+    --amber:#C7871E; --amber-soft:#F5E5C6;
+    --green:#3E7D5A; --green-soft:#DEEBE2;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  .app{max-width:820px;margin:0 auto;padding:36px 20px 80px;}
+  .apptitle{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:26px;margin:0 0 4px;}
+  .appsub{font-size:13.5px;color:var(--ink-soft);margin:0 0 28px;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:18px;}
+  .sectag{display:flex;align-items:center;gap:9px;margin-bottom:16px;}
+  .sectag .num{width:22px;height:22px;border-radius:6px;background:var(--navy);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .sectag h2{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16.5px;margin:0;flex:1;}
+  .sectag .hint{font-size:11.5px;color:var(--ink-soft);}
+
+  .cal-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;}
+  .cal-nav{display:flex;align-items:center;gap:8px;}
+  .cal-nav button{border:1px solid var(--line);background:#fff;border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:14px;color:var(--ink);}
+  .cal-nav button:hover{background:var(--navy-soft);}
+  .cal-controls select, .cal-controls input[type=number]{border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'Inter',sans-serif;font-size:13.5px;background:#fff;color:var(--ink);}
+  .cal-controls input[type=number]{width:72px;}
+  .today-btn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 12px;font-size:12.5px;cursor:pointer;color:var(--ink-soft);}
+  .today-btn:hover{background:var(--navy-soft);}
+
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cal-wd{text-align:center;font-size:11px;color:var(--ink-soft);font-weight:500;padding-bottom:6px;}
+  .cal-day{min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:6px 3px 5px;border-radius:7px;font-size:12.5px;cursor:pointer;position:relative;color:var(--ink);background:#FAF8F3;overflow:hidden;}
+  .cal-day.blank{visibility:hidden;cursor:default;}
+  .cal-day:hover{background:var(--navy-soft);}
+  .cal-day.today .daynum{font-weight:700;color:var(--navy);}
+  .cal-day.selected{background:var(--navy);color:#fff;}
+  .cal-day.selected .actline{color:#fff;}
+  .daynum{font-size:12.5px;margin-bottom:2px;}
+  .actline{font-size:9.5px;line-height:1.2;color:var(--green);font-weight:500;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .dotrow{display:flex;gap:3px;margin-top:auto;}
+  .cal-day .dd{width:4px;height:4px;border-radius:50%;}
+  .dd.guias{background:var(--navy);}
+  .cal-day.selected .dd.guias{background:#fff;}
+  .dd.equipa{background:var(--amber);}
+
+  .selected-date{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font-size:13px;color:var(--ink-soft);}
+  .selected-date b{color:var(--ink);font-weight:600;}
+
+  /* event chips */
+  .chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 10px;font-size:12.5px;cursor:pointer;background:#fff;}
+  .chip .cdot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;}
+  .chip.type-atividade .cdot{background:var(--green);}
+  .chip.type-guias .cdot{background:var(--navy);}
+  .chip.type-equipa .cdot{background:var(--amber);}
+  .chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .chip .cx{opacity:0;margin-left:2px;font-size:12px;}
+  .chip:hover .cx{opacity:.7;}
+  .add-event-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .add-ev-btn{border:1px dashed var(--line);background:transparent;border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--ink-soft);}
+  .add-ev-btn:hover{background:#F6F3EB;color:var(--ink);}
+  .empty-note{font-size:13px;color:var(--ink-soft);margin-bottom:12px;}
+
+  /* activity-only form */
+  .activity-field label{display:block;font-size:11.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .activity-field input{width:100%;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:15px;outline:none;color:var(--ink);}
+
+  ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;}
+  li.item{display:flex;align-items:flex-start;gap:10px;padding:7px 4px;border-radius:6px;}
+  li.item:hover{background:#F6F3EB;}
+  li.item .idx{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--ink-soft);width:16px;flex:0 0 16px;padding-top:2px;text-align:right;}
+  li.item .box{width:17px;height:17px;flex:0 0 17px;border:1.5px solid var(--green);border-radius:5px;margin-top:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fff;}
+  li.item.done .box{background:var(--green);}
+  li.item .box svg{width:11px;height:11px;display:none;}
+  li.item.done .box svg{display:block;}
+  li.item .txt{flex:1;font-size:14px;line-height:1.5;outline:none;padding-top:1px;}
+  li.item.done .txt{color:var(--ink-soft);text-decoration:line-through;}
+  li.item .del{opacity:0;border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:15px;padding:0 2px;}
+  li.item:hover .del{opacity:1;}
+
+  .add-row{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);}
+  .add-row input{flex:1;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13.5px;outline:none;color:var(--ink);padding:4px 2px;}
+  .add-row input::placeholder{color:#A6A29A;}
+  .add-row button.plus{border:none;background:none;color:var(--navy);font-size:18px;line-height:1;cursor:pointer;padding:2px 4px;}
+
+  /* name pill lists (progress / specialties) */
+  .pill-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+  .pill{display:flex;align-items:center;gap:6px;background:var(--navy-soft);color:var(--navy);border-radius:999px;padding:6px 10px 6px 12px;font-size:13px;}
+  .pill .txt{outline:none;}
+  .pill .rm{border:none;background:none;color:var(--navy);opacity:.55;cursor:pointer;font-size:12px;}
+  .pill .rm:hover{opacity:1;}
+  .auto-note{font-size:11.5px;color:var(--ink-soft);margin:-2px 0 10px;display:flex;align-items:center;gap:8px;}
+  .auto-note button{border:none;background:none;color:var(--navy);cursor:pointer;font-size:11.5px;text-decoration:underline;}
+
+  /* responsible: name + task pairs */
+  .resp-row{display:flex;align-items:center;gap:0;padding:8px 4px;border-radius:6px;}
+  .resp-row:hover{background:#F6F3EB;}
+  .resp-row .avatar{width:26px;height:26px;border-radius:50%;background:var(--navy-soft);color:var(--navy);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:0 0 26px;font-family:'Space Grotesk',sans-serif;margin-right:10px;}
+  .resp-row .name{width:140px;flex:0 0 140px;font-size:14px;outline:none;font-weight:500;}
+  .resp-row .arrow{color:var(--ink-soft);margin:0 8px;font-size:13px;}
+  .resp-row .task{flex:1;font-size:14px;outline:none;color:var(--ink-soft);}
+  .resp-row .del{opacity:0;border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:15px;}
+  .resp-row:hover .del{opacity:1;}
+  .resp-add{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);}
+  .resp-add input{border:none;background:transparent;font-size:13.5px;outline:none;}
+  .resp-add input.rname{width:140px;flex:0 0 140px;font-weight:500;}
+  .resp-add input.rtask{flex:1;}
+  .resp-add button{border:none;background:none;color:var(--navy);font-size:18px;cursor:pointer;}
+
+  .source-card{background:var(--amber-soft);border:1px solid #E6CE9A;}
+  .source-card h2{color:#8A5F14;}
+  .source-list{display:flex;flex-direction:column;gap:4px;}
+  .source-item{display:flex;align-items:center;gap:8px;font-size:13.5px;padding:4px 2px;}
+  .source-item .sbox{width:14px;height:14px;border-radius:4px;border:1.3px solid #8A5F14;flex:0 0 14px;display:flex;align-items:center;justify-content:center;}
+  .source-item.done .sbox{background:#8A5F14;}
+  .source-item .sbox svg{width:9px;height:9px;display:none;}
+  .source-item.done .sbox svg{display:block;}
+  .source-item.done .stxt{text-decoration:line-through;color:#8A5F14;opacity:.7;}
+
+  .meet-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .field label{display:block;font-size:11.5px;color:var(--ink-soft);margin-bottom:4px;}
+  .evaluation-label{display:inline-block!important;font-size:13px!important;font-weight:800!important;color:var(--navy)!important;text-transform:uppercase;letter-spacing:.04em;padding:5px 10px;border-radius:8px;background:rgba(21,90,147,.10);border-left:4px solid var(--navy);margin-bottom:7px!important;}
+  .evaluation-card{border:2px solid rgba(21,90,147,.24);background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(241,248,253,.98));}
+  .evaluation-card .sectag h2{color:var(--navy);font-size:20px;}
+  .evaluation-card .sectag .num{background:var(--navy);}
+  .evaluation-card .hint{color:var(--navy);font-weight:700;}
+  .evaluation-textarea{min-height:150px!important;font-size:16px!important;line-height:1.55!important;border:2px solid rgba(21,90,147,.20)!important;background:#fff!important;}
+  .evaluation-textarea:focus{border-color:var(--navy)!important;box-shadow:0 0 0 3px rgba(21,90,147,.10)!important;}
+  .field input, .field textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:13.5px;outline:none;color:var(--ink);}
+  .field textarea{resize:vertical;min-height:52px;}
+  textarea.obs{width:100%;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.6;outline:none;resize:vertical;min-height:100px;}
+  .activity-observations-card{border:2px solid rgba(21,90,147,.18);background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(241,248,253,.98));}
+  .activity-observations-card .sectag h2{color:var(--navy);font-size:19px;}
+  .activity-observations-card .sectag .num{background:var(--navy);}
+  .activity-observations-card .hint{color:var(--navy);font-weight:700;}
+  .activity-observations{min-height:150px!important;font-size:15px!important;border:2px solid rgba(21,90,147,.16)!important;background:#fff!important;}
+  .activity-observations:focus{border-color:var(--navy)!important;box-shadow:0 0 0 3px rgba(21,90,147,.10)!important;}
+
+  .pdf-btn{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:7px;padding:9px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;}
+  .pdf-btn.ghost{background:var(--navy-soft);color:var(--navy);margin-top:14px;}
+  .pdf-btn.ghost:hover{background:#D6E0EB;}
+  .pdf-btn.solid{background:var(--navy);color:#fff;width:100%;justify-content:center;padding:12px;font-size:14px;margin-top:6px;}
+  .pdf-btn.solid:hover{opacity:.9;}
+  .pdf-btn svg{width:14px;height:14px;}
+
+  .status-line{font-size:11.5px;color:var(--ink-soft);text-align:center;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .status-line .dot{width:5px;height:5px;border-radius:50%;background:var(--green);}
+  .status-line.saving .dot{background:var(--amber);}
+
+  .link-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px;padding:12px 16px;border:1px solid var(--line);border-radius:8px;background:#fff;}
+  .link-bar .lb-btn{border:none;background:var(--navy);color:#fff;border-radius:6px;padding:8px 14px;font-size:12.5px;font-weight:500;cursor:pointer;}
+  .link-bar .lb-btn:hover{opacity:.9;}
+  .link-bar .lb-note{font-size:11px;color:var(--ink-soft);flex:1 1 220px;}
+  .view-badge{display:inline-flex;align-items:center;gap:6px;background:var(--amber-soft);color:#8A5F14;border-radius:999px;padding:6px 13px;font-size:12px;font-weight:500;margin-bottom:22px;}
+  .view-badge .vdot{width:6px;height:6px;border-radius:50%;background:#8A5F14;}
+
+  /* View-only mode: disable editing, hide edit affordances */
+  .view-mode [contenteditable]{pointer-events:none;}
+  .view-mode .activity-field input,
+  .view-mode .field input,
+  .view-mode .field textarea,
+  .view-mode textarea.obs{pointer-events:none;background:transparent;}
+  .view-mode .add-row,
+  .view-mode .add-event-row,
+  .view-mode .resp-add,
+  .view-mode .del,
+  .view-mode .rm,
+  .view-mode .cx,
+  .view-mode .resync-btn{display:none !important;}
+  .view-mode .status-line{display:none;}
+
+  /* ---------- Universal responsive layout ---------- */
+  @media (max-width: 900px){
+    .app{width:100%;max-width:820px;}
+  }
+
+  @media (max-width: 700px){
+    .app{max-width:none;padding:16px 10px 44px;}
+    .apptitle{font-size:23px;}
+    .appsub{font-size:12.5px;margin-bottom:16px;}
+
+    .card{padding:15px 12px;margin-bottom:11px;border-radius:10px;}
+    .sectag{margin-bottom:12px;gap:8px;}
+    .sectag h2{font-size:15px;}
+    .sectag .num{width:21px;height:21px;}
+
+    /* Calendar: fixed 7-column grid with no intrinsic-width overflow */
+    .cal-grid{
+      display:grid !important;
+      grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+      width:100% !important;
+      max-width:100% !important;
+      min-width:0 !important;
+      gap:3px !important;
+    }
+    .cal-wd{
+      min-width:0 !important;
+      width:100% !important;
+      font-size:10px;
+      overflow:hidden;
+    }
+    .cal-day{
+      min-width:0 !important;
+      width:100% !important;
+      min-height:58px;
+      padding:5px 1px 4px;
+      border-radius:6px;
+      overflow:hidden;
+      font-size:12px;
+      -webkit-user-select:none;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .daynum{font-size:12px;}
+    .actline{
+      font-size:7.5px;
+      line-height:1.15;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .cal-controls{flex-wrap:wrap;gap:7px;}
+    .cal-nav{width:100%;justify-content:center;}
+    .cal-nav button{width:38px;height:38px;font-size:18px;}
+    .cal-controls select,
+    .cal-controls input[type=number]{min-height:38px;font-size:14px;}
+    .today-btn{width:100%;min-height:38px;}
+
+    .chiprow,.add-event-row{display:grid;grid-template-columns:1fr;gap:7px;}
+    .chip{min-height:42px;padding:9px 11px;font-size:13px;}
+    .chip .cx{margin-left:auto;opacity:.65;font-size:14px;}
+    .add-ev-btn{min-height:42px;font-size:13px;}
+
+    .meet-grid{grid-template-columns:1fr;gap:9px;}
+    .activity-field input,.field input,.field textarea,textarea.obs{
+      font-size:16px;
+    }
+    .activity-field input,.field input{min-height:42px;}
+    .field textarea{min-height:82px;}
+    textarea.obs{min-height:115px;}
+
+    .add-row{gap:6px;}
+    .add-row input{font-size:16px;min-height:40px;min-width:0;}
+    .add-row button.plus{width:40px;height:40px;font-size:22px;}
+
+    li.item{padding:9px 2px;min-height:42px;gap:8px;}
+    li.item .box{width:21px;height:21px;flex-basis:21px;}
+    li.item .txt{font-size:14px;min-width:0;}
+    li.item .del{opacity:.65;width:28px;min-width:28px;font-size:17px;}
+
+    .resp-row{position:relative;align-items:flex-start;flex-wrap:wrap;padding:9px 2px;}
+    .resp-row .avatar{width:30px;height:30px;flex-basis:30px;margin-right:2px;}
+    .resp-row .name{width:calc(100% - 42px);flex-basis:calc(100% - 42px);font-size:14px;padding-top:5px;}
+    .resp-row .arrow{display:none;}
+    .resp-row .task{width:calc(100% - 42px);flex-basis:calc(100% - 42px);margin-left:42px;font-size:13px;}
+    .resp-row .del{opacity:.65;position:absolute;right:0;top:9px;}
+    .resp-add{display:grid;grid-template-columns:1fr 40px;gap:6px;}
+    .resp-add input.rname,.resp-add input.rtask{
+      width:100%;flex:none;min-height:40px;font-size:16px;
+      border:1px solid var(--line);border-radius:6px;padding:8px 10px;
+    }
+    .resp-add input.rname{grid-column:1;}
+    .resp-add input.rtask{grid-column:1;}
+    .resp-add button{grid-column:2;grid-row:1 / span 2;width:40px;height:40px;font-size:22px;}
+
+    .pdf-btn{width:100%;min-height:43px;justify-content:center;}
+    .link-bar{align-items:stretch;padding:10px 12px;margin-bottom:14px;}
+    .link-bar .lb-note{flex-basis:100%;line-height:1.4;}
+    .link-bar .lb-btn{width:100%;min-height:40px;}
+  }
+
+  @media (pointer:coarse){
+    button,.chip,.cal-day,.box,.rm,.del{touch-action:manipulation;}
+  }
+
+
+  /* =========================================================
+     IDENTIDADE VISUAL — COMUNIDADE 111 · PIONEIROS
+     Baseada na simbologia da III Secção: azul, Rosa dos Ventos,
+     Gota de Água, Machada e Icthus.
+     ========================================================= */
+  :root{
+    --bg:#eaf2f8;
+    --panel:rgba(255,255,255,.96);
+    --ink:#17283b;
+    --ink-soft:#5d6e7d;
+    --line:#cbd9e5;
+    --navy:#155a93;
+    --navy-soft:#e1eef8;
+    --blue-deep:#0b3558;
+    --blue-mid:#1976b8;
+    --water:#48a9d8;
+    --camp-green:#3f7656;
+    --camp-dark:#244b3a;
+    --wood:#9a6a3a;
+    --wood-soft:#ead9c5;
+    --amber:#c88724;
+    --amber-soft:#f5e6c7;
+    --green:#3e7d5a;
+    --green-soft:#deebe2;
+  }
+
+  body{
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,255,255,.95) 0 2px, transparent 3px),
+      radial-gradient(circle at 82% 14%, rgba(255,255,255,.7) 0 1.5px, transparent 2.5px),
+      radial-gradient(circle at 64% 5%, rgba(255,255,255,.7) 0 1px, transparent 2px),
+      linear-gradient(180deg,#0b3558 0,#155a93 145px,#eaf2f8 330px,#eaf2f8 100%);
+    background-size: auto,auto,auto,auto;
+    background-attachment: fixed;
+  }
+
+  body::before{
+    content:"";
+    position:fixed;
+    left:0; right:0; bottom:0;
+    height:180px;
+    z-index:-1;
+    opacity:.78;
+    background:#315d46;
+    clip-path:polygon(0 68%,10% 50%,18% 61%,28% 38%,38% 60%,48% 45%,58% 65%,68% 40%,78% 58%,88% 34%,100% 55%,100% 100%,0 100%);
+    filter:drop-shadow(0 -8px 12px rgba(11,53,88,.08));
+  }
+
+  body::after{
+    content:"";
+    position:fixed;
+    left:0;right:0;bottom:0;height:34px;
+    z-index:-1;
+    background:linear-gradient(180deg,transparent,#0b3558);
+    opacity:.16;
+  }
+
+  .app{
+    max-width:860px;
+    padding-top:22px;
+  }
+
+  .pioneer-hero{
+    position:relative;
+    overflow:hidden;
+    min-height:218px;
+    margin-bottom:18px;
+    padding:24px 24px 20px;
+    border:1px solid rgba(255,255,255,.28);
+    border-radius:20px;
+    color:#fff;
+    background:
+      radial-gradient(circle at 82% 26%,rgba(255,255,255,.18) 0 2px,transparent 3px),
+      radial-gradient(circle at 72% 12%,rgba(255,255,255,.18) 0 1px,transparent 2px),
+      linear-gradient(145deg,#0b3558,#155a93 62%,#1976b8);
+    box-shadow:0 14px 35px rgba(11,53,88,.25);
+  }
+
+  .pioneer-hero::after{
+    content:"";
+    position:absolute;
+    left:-5%; right:-5%; bottom:-58px;
+    height:105px;
+    background:#173e2e;
+    clip-path:polygon(0 55%,12% 42%,22% 58%,34% 35%,47% 56%,60% 38%,72% 57%,84% 40%,100% 52%,100% 100%,0 100%);
+    opacity:.92;
+  }
+
+  .pioneer-hero::before{
+    content:"✦   ·   ✦   ·   ✦";
+    position:absolute; right:24px; top:16px;
+    color:rgba(255,255,255,.42);
+    font-size:10px; letter-spacing:8px;
+  }
+
+  .hero-copy{position:relative;z-index:2;max-width:60%;}
+  .hero-kicker{
+    display:inline-flex;align-items:center;gap:7px;
+    margin-bottom:8px;
+    padding:5px 10px;
+    border:1px solid rgba(255,255,255,.3);
+    border-radius:999px;
+    background:rgba(255,255,255,.11);
+    font-size:11px;font-weight:600;letter-spacing:.04em;
+  }
+  .hero-kicker .mini-compass{font-size:14px;}
+  .hero-title{
+    margin:0 0 5px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:31px;line-height:1.05;font-weight:600;
+  }
+  .hero-subtitle{
+    margin:0;color:rgba(255,255,255,.86);
+    font-size:13px;line-height:1.5;
+  }
+
+  .hero-tent{
+    position:absolute;
+    right:26px;bottom:30px;
+    z-index:2;
+    width:145px;height:105px;
+    filter:drop-shadow(0 8px 7px rgba(0,0,0,.2));
+  }
+  .hero-tent .tent-main{
+    position:absolute;left:20px;bottom:4px;width:105px;height:73px;
+    background:#dfeef7;
+    clip-path:polygon(50% 0,100% 100%,0 100%);
+  }
+  .hero-tent .tent-door{
+    position:absolute;left:61px;bottom:4px;width:24px;height:50px;
+    background:#155a93;clip-path:polygon(50% 0,100% 100%,0 100%);
+  }
+  .hero-tent .pole{
+    position:absolute;left:72px;top:0;width:2px;height:76px;background:#ead9c5;
+  }
+  .hero-tent .flag{
+    position:absolute;left:74px;top:2px;width:25px;height:13px;
+    background:#fff;clip-path:polygon(0 0,100% 30%,0 100%);
+  }
+  .hero-tent .peg1,.hero-tent .peg2{
+    position:absolute;bottom:0;width:2px;height:25px;background:#ead9c5;
+  }
+  .hero-tent .peg1{left:24px;transform:rotate(20deg);}
+  .hero-tent .peg2{right:24px;transform:rotate(-20deg);}
+
+  .pioneer-symbols{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:9px;
+    margin-top:13px;
+    position:relative;z-index:4;
+  }
+  .p-symbol{
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    min-height:50px;
+    padding:9px 8px;
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:11px;
+    background:rgba(7,39,65,.38);
+    color:#fff;
+    backdrop-filter:blur(5px);
+    font-size:11px;font-weight:600;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+    transition:transform .18s ease, background .18s ease;
+  }
+  .p-symbol:hover{transform:translateY(-2px);background:rgba(7,39,65,.52);}
+  .p-symbol span:last-child{white-space:nowrap;}
+  .p-symbol .symbol-icon{
+    width:30px;height:30px;flex:0 0 30px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    background:rgba(255,255,255,.92);
+    color:#155a93;
+    font-size:17px;
+    box-shadow:0 2px 7px rgba(0,0,0,.12);
+  }
+
+  .apptitle{display:none;}
+  .appsub{display:none;}
+
+  .card{
+    border-radius:15px;
+    border-color:#cbd9e5;
+    box-shadow:0 5px 18px rgba(20,65,95,.06);
+  }
+
+  .sectag .num{
+    border-radius:50%;
+    background:var(--navy);
+    box-shadow:0 2px 5px rgba(21,90,147,.18);
+  }
+
+  .sectag h2{color:#173b5c;}
+
+  .add-ev-btn:hover,.today-btn:hover,.cal-nav button:hover{
+    background:#e1eef8;
+  }
+
+  .cal-day{background:#f6fafc;}
+  .cal-day:hover{background:#e1eef8;}
+  .cal-day.selected{background:#155a93;}
+
+
+  /* Calendar 2.0 — leitura rápida para a Comunidade */
+  .cal-grid{gap:5px;}
+  .cal-wd{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;}
+  .cal-day{border:1px solid #e2edf4;background:rgba(255,255,255,.88);min-height:68px;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .cal-day:not(.blank):hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(21,90,147,.10);}
+  .cal-day.today{box-shadow:inset 0 0 0 2px #48a9d8;}
+  .cal-day.selected{border-color:#155a93;box-shadow:0 5px 12px rgba(21,90,147,.20);}
+  .cal-day .daynum{font-weight:600;}
+  .dotrow{margin-top:4px;}
+
+  .source-card{
+    background:#eef7fb;
+    border-color:#a9d0e4;
+  }
+  .source-card h2{color:#155a93;}
+
+  .status-line .dot{background:#3e7d5a;}
+
+  @media(max-width:700px){
+    .app{padding:12px 10px 44px;}
+    .pioneer-hero{
+      min-height:245px;
+      padding:18px 15px 15px;
+      border-radius:17px;
+    }
+    .hero-copy{max-width:100%;padding-right:80px;}
+    .hero-title{font-size:25px;}
+    .hero-subtitle{font-size:12px;}
+    .hero-tent{right:2px;bottom:75px;transform:scale(.72);transform-origin:bottom right;}
+    .pioneer-symbols{
+      grid-template-columns:repeat(2,1fr);
+      gap:6px;
+      margin-top:45px;
+    }
+    .p-symbol{min-height:42px;font-size:10.5px;}
+  }
+
+
+  /* ---------- Cabeçalho ORIENTA-TE ---------- */
+  .brand-header{
+    position:relative;
+    max-width:100%;
+    min-width:0;
+    width:100%;
+    margin:0 0 18px;
+    padding:0;
+    border:1px solid rgba(21,90,147,.14);
+    border-radius:18px;
+    overflow:hidden;
+    background:rgba(255,255,255,.92);
+    box-shadow:0 8px 24px rgba(20,65,95,.10);
+    isolation:isolate;
+  }
+
+  .brand-header::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:linear-gradient(
+      90deg,
+      rgba(255,255,255,.05),
+      transparent 28%,
+      transparent 72%,
+      rgba(11,53,88,.035)
+    );
+  }
+
+  .brand-header-image{
+    display:block;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    height:auto;
+    max-height:112px;
+    object-fit:contain;
+    object-position:center;
+    background:#fff;
+  }
+
+  @media(max-width:700px){
+    .brand-header{
+      margin-bottom:14px;
+      border-radius:14px;
+      box-shadow:0 6px 18px rgba(20,65,95,.09);
+    }
+    .brand-header-image{
+      max-height:78px;
+    }
+  }
+
+
+  /* ---------- Rodapé ORIENTA-TE · integrado na largura da página ---------- */
+  .brand-footer{
+    position:relative;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    margin:18px auto 0;
+    padding:0;
+    border:1px solid rgba(21,90,147,.14);
+    border-radius:15px;
+    overflow:hidden;
+    background:#fff;
+    box-shadow:0 5px 18px rgba(20,65,95,.08);
+    isolation:isolate;
+  }
+
+  .brand-footer-image{
+    display:block;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    height:auto;
+    aspect-ratio:1663 / 142;
+    object-fit:cover;
+    object-position:center;
+  }
+
+  .brand-footer::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    border-radius:inherit;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+  }
+
+  @media(max-width:700px){
+    .brand-footer{
+      margin-top:14px;
+      border-radius:12px;
+      box-shadow:0 4px 13px rgba(20,65,95,.07);
+    }
+  }
+
+/* ---------- Símbolos dos Pioneiros — composição editorial de fundo ---------- */
+/* Inspirada na composição da referência: símbolos grandes, nos cantos,
+   parcialmente fora da página e com presença muito suave. */
+body{
+  background:
+    radial-gradient(circle at 7% 12%,rgba(255,255,255,.95),transparent 24%),
+    radial-gradient(circle at 93% 28%,rgba(255,255,255,.82),transparent 28%),
+    linear-gradient(180deg,#eef7fc 0%,#edf5fa 48%,#e8f2f8 100%) !important;
+}
+.pioneer-bg{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.pioneer-bg .pbg{
+  position:absolute;
+  height:auto;
+  user-select:none;
+  mix-blend-mode:multiply;
+  opacity:.085;
+  filter:saturate(.52) contrast(.78) brightness(1.18);
+}
+/* Os símbolos funcionam como uma textura de fundo: grandes, separados e parcialmente fora da página. */
+.pioneer-bg .compass{
+  left:-125px;
+  top:9%;
+  width:clamp(330px,28vw,430px);
+  transform:rotate(-7deg);
+}
+.pioneer-bg .fish{
+  right:-135px;
+  top:20%;
+  width:clamp(320px,27vw,420px);
+  transform:rotate(7deg);
+}
+.pioneer-bg .axe{
+  left:-115px;
+  bottom:-80px;
+  width:clamp(330px,28vw,430px);
+  transform:rotate(-13deg);
+}
+.pioneer-bg .drop{
+  right:-105px;
+  bottom:-55px;
+  width:clamp(300px,25vw,390px);
+  transform:rotate(7deg);
+}
+/* Véu branco central: deixa os símbolos nas margens e o conteúdo limpo. */
+.pioneer-bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse at center,rgba(255,255,255,.88) 0%,rgba(255,255,255,.62) 31%,rgba(255,255,255,.10) 65%,transparent 82%);
+  pointer-events:none;
+}
+/* Substitui a paisagem escura por uma base muito discreta, como na referência. */
+body::before{
+  height:95px !important;
+  opacity:.28 !important;
+  background:#b9d9e8 !important;
+  clip-path:polygon(0 70%,9% 52%,18% 66%,29% 45%,40% 67%,52% 49%,64% 68%,76% 47%,88% 65%,100% 51%,100% 100%,0 100%) !important;
+  filter:blur(10px) !important;
+}
+body::after{
+  height:0 !important;
+  opacity:0 !important;
+}
+.app{position:relative;z-index:2;}
+.brand-header,.brand-footer{position:relative;z-index:3;}
+@media(max-width:700px){
+  .pioneer-bg .pbg{opacity:.065;}
+  .pioneer-bg .compass{left:-105px;top:8%;width:300px;}
+  .pioneer-bg .fish{right:-105px;top:25%;width:290px;}
+  .pioneer-bg .axe{left:-95px;bottom:-45px;width:300px;}
+  .pioneer-bg .drop{right:-90px;bottom:-30px;width:275px;}
+  body::before{height:65px !important;}
+}
+
+  /* ---------- Navegação entre Comunidade e Direção ---------- */
+  .project-nav{
+    display:flex;
+    gap:8px;
+    margin:0 0 18px;
+    padding:5px;
+    border:1px solid rgba(21,90,147,.14);
+    border-radius:14px;
+    background:rgba(255,255,255,.86);
+    box-shadow:0 5px 18px rgba(20,65,95,.06);
+  }
+  .project-nav-btn{
+    flex:1;
+    border:0;
+    border-radius:10px;
+    padding:10px 14px;
+    background:transparent;
+    color:#5d6e7d;
+    font:600 13px 'Inter',sans-serif;
+    cursor:pointer;
+    transition:.18s ease;
+  }
+  .project-nav-btn:hover{background:#eaf3f9;color:#155a93;}
+  .project-nav-btn.active{background:#155a93;color:#fff;box-shadow:0 3px 9px rgba(21,90,147,.18);}
+
+  /* ---------- Reuniões de Direção ---------- */
+  .direction-calendar-note,
+  .direction-auto-note{
+    font-size:12px;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .direction-calendar-note{margin:-5px 0 14px;}
+  .direction-calendar-card .cal-day.direction-meeting{
+    box-shadow:inset 0 -4px 0 #c88724;
+  }
+  .direction-calendar-card .cal-day.direction-selected{
+    outline:2px solid #155a93;
+    outline-offset:-2px;
+  }
+  .direction-calendar-card .dir-meeting-mark{
+    margin-top:auto;
+    font-size:8px;
+    line-height:1.1;
+    color:#8a5f14;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.02em;
+  }
+  .direction-save-btn{
+    border:0;
+    border-radius:8px;
+    background:#155a93;
+    color:#fff;
+    padding:10px 16px;
+    font:600 13px 'Inter',sans-serif;
+    cursor:pointer;
+  }
+  .direction-save-btn:hover{opacity:.92;}
+  .direction-section-card{border:1px solid #b9d5e6;}
+  .direction-section-card .sectag h2{color:#155a93;}
+  .direction-big-textarea,
+  .direction-notes-textarea{
+    width:100%;
+    border:2px solid rgba(21,90,147,.14);
+    border-radius:9px;
+    padding:12px 13px;
+    background:#fff;
+    color:var(--ink);
+    font:14px/1.6 'Inter',sans-serif;
+    outline:none;
+    resize:vertical;
+  }
+  .direction-big-textarea{min-height:170px;}
+  .direction-notes-textarea{min-height:100px;margin-top:12px;}
+  .direction-big-textarea:focus,
+  .direction-notes-textarea:focus,
+  #dirHora:focus,#dirLocal:focus,#dirParticipantes:focus{
+    border-color:#155a93;
+    box-shadow:0 0 0 3px rgba(21,90,147,.08);
+  }
+  .direction-list{display:flex;flex-direction:column;gap:10px;}
+  .direction-activity{
+    border:1px solid #d7e5ee;
+    border-radius:10px;
+    padding:12px;
+    background:#f9fcfe;
+  }
+  .direction-activity-title{
+    font-weight:700;
+    color:#173b5c;
+    font-size:14px;
+    margin-bottom:8px;
+  }
+  .direction-activity-meta{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .direction-activity textarea{
+    width:100%;
+    min-height:105px;
+    border:1px solid #cbd9e5;
+    border-radius:7px;
+    padding:9px 10px;
+    resize:vertical;
+    font:13px/1.55 'Inter',sans-serif;
+    color:var(--ink);
+    background:#fff;
+    outline:none;
+  }
+  .direction-pill-list{display:flex;flex-wrap:wrap;gap:7px;}
+  .direction-pill{
+    background:#e1eef8;
+    color:#155a93;
+    border-radius:999px;
+    padding:6px 10px;
+    font-size:12.5px;
+  }
+  .direction-empty{
+    padding:10px 12px;
+    border-radius:8px;
+    background:#f5f8fa;
+    color:var(--ink-soft);
+    font-size:13px;
+  }
+  .direction-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:4px 0 22px;
+  }
+  .direction-save-status{font-size:11.5px;color:var(--ink-soft);}
+  .view-mode .direction-save-btn,
+  .view-mode #dirSaveAllBtn{display:none !important;}
+  .view-mode #dirHora,
+  .view-mode #dirLocal,
+  .view-mode #dirParticipantes,
+  .view-mode #dirOrdem,
+  .view-mode #dirFuture,
+  .view-mode #dirProgressNotes,
+  .view-mode #dirSpecNotes,
+  .view-mode #dirCampNights,
+  .view-mode #dirWarnings,
+  .view-mode .direction-activity textarea{
+    pointer-events:none;
+    background:transparent;
+  }
+  @media(max-width:700px){
+    .project-nav{margin-bottom:14px;}
+    .project-nav-btn{font-size:12px;padding:10px 8px;}
+    .direction-big-textarea{min-height:155px;}
+    .direction-notes-textarea{min-height:105px;}
+    .direction-activity textarea{min-height:125px;font-size:16px;}
+    .direction-actions{align-items:stretch;flex-direction:column;}
+  }
+
+</style>
+</head>
+<body>
+<div class="pioneer-bg" aria-hidden="true"><img loading="lazy" decoding="async" class="pbg compass" src="./assets/pioneer-compass.png" alt="" aria-hidden="true"><img loading="lazy" decoding="async" class="pbg fish" src="./assets/pioneer-fish.png" alt="" aria-hidden="true"><img loading="lazy" decoding="async" class="pbg axe" src="./assets/pioneer-axe.png" alt="" aria-hidden="true"><img loading="lazy" decoding="async" class="pbg drop" src="./assets/pioneer-drop.png" alt="" aria-hidden="true"></div>
+<div class="app">
+  <div class="apptitle">Comunidade 111 - Ronfe</div>
+  <div class="appsub" id="appsub">Comunidade de Pioneiros · III Secção · Sempre Mais Longe</div>
+
+  
+  <header class="brand-header" aria-label="Orienta-te · Ronfe · Comunidade 111">
+    <img
+      loading="eager" decoding="async"
+      class="brand-header-image"
+      src="./assets/header.jpg"
+      alt="ORIENTA-TE · RONFE · COMUNIDADE 111 — Mais que um destino, um caminho"
+    >
+  </header>
+
+  <nav class="project-nav" aria-label="Navegação da aplicação">
+    <button type="button" class="project-nav-btn active" id="navComunidade">Comunidade</button>
+    <button type="button" class="project-nav-btn" id="navDirecao">Reuniões de Direção</button>
+  </nav>
+
+  <div class="view-badge" id="viewBadge" style="display:none;"><span class="vdot"></span>Modo de visualização — só leitura</div>
+
+  <div class="link-bar" id="linkBar" style="display:none;">
+    <div class="lb-note">Quem abrir este link só consegue ver, não editar. (Não é uma proteção real: se alguém remover "?view=1" do endereço, volta a poder editar.)</div>
+    <button class="lb-btn" id="copyViewLinkBtn">Copiar link de visualização</button>
+  </div>
+
+
+  <section id="direcaoView" style="display:none;">
+    <div class="card direction-calendar-card">
+      <div class="sectag"><div class="num">D</div><h2>Calendário das Reuniões de Direção</h2><span class="hint">marca e consulta</span></div>
+      <div class="direction-calendar-note">Seleciona um dia para marcar uma reunião de direção ou consultar o que foi registado.</div>
+      <div class="cal-controls">
+        <div class="cal-nav">
+          <button id="dirPrevMonth" type="button">‹</button>
+          <select id="dirMonthSelect"></select>
+          <input type="number" id="dirYearInput" min="2000" max="2100">
+          <button id="dirNextMonth" type="button">›</button>
+        </div>
+        <button class="today-btn" id="dirTodayBtn" type="button">Hoje</button>
+      </div>
+      <div class="cal-grid" id="dirCalGrid"></div>
+      <div class="selected-date">Reunião selecionada: <b id="dirSelectedDateLabel"></b></div>
+    </div>
+
+    <div class="card">
+      <div class="sectag"><div class="num">1</div><h2>Reunião de Direção</h2><span class="hint" id="dirMeetingStatus">nova reunião</span></div>
+      <div class="meet-grid">
+        <div class="field"><label>Hora</label><input type="time" id="dirHora"></div>
+        <div class="field"><label>Local</label><input type="text" id="dirLocal" placeholder="Local da reunião"></div>
+      </div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Participantes</label>
+        <input type="text" id="dirParticipantes" placeholder="Nomes separados por vírgula">
+      </div>
+      <button type="button" class="direction-save-btn" id="dirSaveBtn">Guardar reunião de direção</button>
+    </div>
+
+    <div class="card direction-section-card">
+      <div class="sectag"><div class="num">2</div><h2>Ordem de Trabalhos</h2><span class="hint">campo livre</span></div>
+      <textarea class="direction-big-textarea" id="dirOrdem" placeholder="Escreve aqui a Ordem de Trabalhos da reunião..."></textarea>
+    </div>
+
+    <div class="card direction-section-card">
+      <div class="sectag"><div class="num">3</div><h2>Atividades passadas</h2><span class="hint" id="dirPastPeriod"></span></div>
+      <div class="direction-auto-note" id="dirPastNote"></div>
+      <div id="dirPastActivities" class="direction-list"></div>
+    </div>
+
+    <div class="card direction-section-card">
+      <div class="sectag"><div class="num">4</div><h2>Atividades Futuras</h2><span class="hint">campo livre</span></div>
+      <textarea class="direction-big-textarea" id="dirFuture" placeholder="Escreve aqui as atividades futuras, ideias, preparação, necessidades e decisões..."></textarea>
+    </div>
+
+    <div class="card direction-section-card">
+      <div class="sectag"><div class="num">5</div><h2>Progresso</h2><span class="hint" id="dirProgressPeriod"></span></div>
+      <div class="direction-auto-note" id="dirProgressNote"></div>
+      <div id="dirProgress" class="direction-pill-list"></div>
+      <textarea class="direction-notes-textarea" id="dirProgressNotes" placeholder="Notas / avaliação do progresso..."></textarea>
+    </div>
+
+    <div class="card direction-section-card">
+      <div class="sectag"><div class="num">6</div><h2>Especialidades</h2><span class="hint" id="dirSpecPeriod"></span></div>
+      <div class="direction-auto-note" id="dirSpecNote"></div>
+      <div id="dirSpecialties" class="direction-pill-list"></div>
+      <textarea class="direction-notes-textarea" id="dirSpecNotes" placeholder="Notas / avaliação das especialidades..."></textarea>
+    </div>
+
+    <div class="card direction-section-card">
+      <div class="sectag"><div class="num">7</div><h2>Noites de campo</h2><span class="hint">campo livre</span></div>
+      <textarea class="direction-big-textarea" id="dirCampNights" placeholder="Escreve aqui o planeamento das noites de campo..."></textarea>
+    </div>
+
+    <div class="card direction-section-card">
+      <div class="sectag"><div class="num">8</div><h2>Avisos</h2><span class="hint">campo livre</span></div>
+      <textarea class="direction-big-textarea" id="dirWarnings" placeholder="Escreve aqui os avisos, informações importantes e assuntos a transmitir..."></textarea>
+    </div>
+
+    <div class="direction-actions">
+      <button type="button" class="direction-save-btn" id="dirSaveAllBtn">Guardar alterações</button>
+      <span class="direction-save-status" id="dirSaveStatus">—</span>
+    </div>
+  </section>
+
+  <section id="comunidadeView">
+  <div class="card">
+    <div class="sectag"><div class="num">1</div><h2>Calendário</h2></div>
+    <div class="cal-controls">
+      <div class="cal-nav">
+        <button id="prevMonth">‹</button>
+        <select id="monthSelect"></select>
+        <input type="number" id="yearInput" min="2000" max="2100">
+        <button id="nextMonth">›</button>
+      </div>
+      <button class="today-btn" id="todayBtn">Hoje</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="selected-date">A editar o dia <b id="selectedDateLabel"></b></div>
+  </div>
+
+  <div class="card">
+    <div class="sectag"><div class="num">2</div><h2>Eventos do dia</h2></div>
+    <div class="chiprow" id="chipRow"></div>
+    <div class="empty-note" id="emptyNote" style="display:none;">Sem eventos registados. Adiciona um evento abaixo.</div>
+    <div class="add-event-row">
+      <button class="add-ev-btn" data-type="atividade">+ Atividade</button>
+      <button class="add-ev-btn" data-type="guias">+ Reunião de guias</button>
+      <button class="add-ev-btn" data-type="equipa">+ Reunião de equipa de animação</button>
+    </div>
+  </div>
+
+  <div id="eventForm"></div>
+
+  <div class="status-line" id="statusLine"><span class="dot"></span><span id="statusText">Guardado</span></div>
+  </section>
+
+
+
+  <footer class="brand-footer" aria-label="Orienta-te · Objetivos">
+    <img
+      loading="lazy" decoding="async"
+      class="brand-footer-image"
+      src="./assets/footer.jpg"
+      alt="Explorar · Planear · Descobrir · Superar · Crescer · Orienta-te"
+    >
+  </footer>
+
+</div>
+
+<template id="tpl-atividade">
+  <div class="card">
+    <div class="sectag"><div class="num">3</div><h2>Atividade</h2></div>
+    <div class="activity-field">
+      <label>Nome da atividade</label>
+      <input type="text" id="f-activity-name" placeholder="Ex.: Caminhada às cascatas" maxlength="120">
+    </div>
+  </div>
+
+  <div class="card activity-observations-card">
+    <div class="sectag"><div class="num">4</div><h2>Observações</h2><span class="hint">sobre a atividade</span></div>
+    <div class="field">
+      <textarea class="obs activity-observations" id="f-activity-observations" placeholder="Escreve aqui tudo o que seja importante sobre a atividade: preparação, materiais, decisões, ocorrências, avaliação no final, etc."></textarea>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-meeting">
+  <div class="card">
+    <div class="sectag"><div class="num">3</div><h2>Ordem de trabalhos</h2></div>
+    <div class="field" style="margin-bottom:12px;">
+      <label>Hora da reunião</label>
+      <input type="time" id="f-agendaHora">
+    </div>
+    <ul class="items" id="f-agendaList"></ul>
+    <div class="add-row">
+      <button class="plus" id="f-agendaAddBtn">+</button>
+      <input id="f-agendaInput" placeholder="Novo ponto da ordem de trabalhos" maxlength="160">
+    </div>
+    <button type="button" class="pdf-btn ghost" id="f-agendaPdfBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Exportar ordem de trabalhos (PDF)
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="sectag"><div class="num">4</div><h2>Progresso</h2><span class="hint">nomes</span></div>
+    <div id="f-progressAutoNote"></div>
+    <div class="pill-list" id="f-progressList"></div>
+    <div class="add-row" style="border-top:none;padding-top:0;margin-top:0;">
+      <button class="plus" id="f-progressAddBtn">+</button>
+      <input id="f-progressInput" placeholder="Adicionar nome" maxlength="80">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sectag"><div class="num">5</div><h2>Especialidades</h2><span class="hint">nomes</span></div>
+    <div id="f-specAutoNote"></div>
+    <div class="pill-list" id="f-specList"></div>
+    <div class="add-row" style="border-top:none;padding-top:0;margin-top:0;">
+      <button class="plus" id="f-specAddBtn">+</button>
+      <input id="f-specInput" placeholder="Adicionar nome" maxlength="80">
+    </div>
+  </div>
+
+  <div class="card source-card" id="f-sourceTasksCard" style="display:none;">
+    <div class="sectag"><div class="num">·</div><h2>Tarefas da reunião de guias</h2></div>
+    <div class="auto-note" id="f-sourceTasksNote"></div>
+    <div class="source-list" id="f-sourceTasksList"></div>
+  </div>
+
+  <div class="card">
+    <div class="sectag"><div class="num">6</div><h2>Tarefas</h2><span class="hint" id="f-tasksCount"></span></div>
+    <ul class="items" id="f-tasksList"></ul>
+    <div class="add-row">
+      <button class="plus" id="f-taskAddBtn">+</button>
+      <input id="f-taskInput" placeholder="Nova tarefa" maxlength="160">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sectag"><div class="num">7</div><h2>Responsáveis</h2><span class="hint">nome → tarefa</span></div>
+    <div id="f-respList"></div>
+    <div class="resp-add">
+      <input class="rname" id="f-respNameInput" placeholder="Nome">
+      <input class="rtask" id="f-respTaskInput" placeholder="Tarefa pela qual é responsável">
+      <button id="f-respAddBtn">+</button>
+    </div>
+  </div>
+
+  <div class="card evaluation-card">
+    <div class="sectag"><div class="num">8</div><h2>Avaliações</h2><span class="hint">reflexão da reunião</span></div>
+    <div class="field evaluation-field">
+      <textarea id="f-meetNotas" class="evaluation-textarea" placeholder="Escreve aqui a avaliação da reunião, o que correu bem, o que pode melhorar, aprendizagens, decisões e próximos passos…"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sectag"><div class="num">9</div><h2 id="f-meetingTitle">Reunião</h2></div>
+    <div class="meet-grid">
+      <div class="field"><label>Hora</label><input type="time" id="f-meetHora"></div>
+      <div class="field"><label>Local</label><input type="text" id="f-meetLocal" placeholder="Ex.: Estaleiro, escritório de obra"></div>
+    </div>
+    <div class="field" style="margin-bottom:12px;">
+      <label>Participantes</label>
+      <input type="text" id="f-meetParticipantes" placeholder="Nomes separados por vírgula">
+    </div>
+    <button type="button" class="pdf-btn solid" id="f-ataPdfBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Gerar ata da reunião (PDF)
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="sectag"><div class="num">10</div><h2>Observações</h2></div>
+    <textarea class="obs" id="f-observations" placeholder="Observações adicionais…"></textarea>
+  </div>
+</template>
+
+<script>
+const MONTHS_PT = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const WEEKDAYS_PT = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
+const WEEKDAYS_FULL = ["segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado","domingo"];
+const TYPE_LABEL = { atividade:'Atividade', guias:'Reunião de guias', equipa:'Reunião de equipa de animação' };
+
+const IS_VIEW = new URLSearchParams(window.location.search).get('view') === '1';
+
+// Cola aqui o URL do teu Apps Script (termina em /exec) para ligar a app à tua Google Sheet.
+// Deixa vazio ('') para continuar a usar o armazenamento interno do Claude.
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbxe1gsz32xBeBr2FcLA0JJdZyb3i-eGnEUt80mcc9d6-TIr9xF47R59plFogDqAPUsGCA/exec';
+
+const SHEET_CACHE_PREFIX = 'comunidade111:day:';
+const SHEET_CACHE_TTL = 5 * 60 * 1000;
+
+async function sheetGet(key){
+  const res = await fetch(SHEET_API_URL + '?action=get&key=' + encodeURIComponent(key), {cache:'no-store'});
+  if(!res.ok) throw new Error('Sheet GET ' + res.status);
+  const data = await res.json();
+  return data.value;
+}
+
+async function sheetList(prefix){
+  const res = await fetch(SHEET_API_URL + '?action=list&prefix=' + encodeURIComponent(prefix), {cache:'no-store'});
+  if(!res.ok) throw new Error('Sheet LIST ' + res.status);
+  const data = await res.json();
+  return data.keys || [];
+}
+
+// Uma única leitura para o mês inteiro. Requer a nova versão do Apps Script abaixo.
+async function sheetMonth(year, month){
+  const prefix = 'day:' + year + '-' + pad2(month + 1);
+  const res = await fetch(SHEET_API_URL + '?action=month&prefix=' + encodeURIComponent(prefix), {cache:'no-store'});
+  if(!res.ok) throw new Error('Sheet MONTH ' + res.status);
+  const data = await res.json();
+  return data.days || {};
+}
+
+async function sheetSet(key, value){
+  const res = await fetch(SHEET_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ key: key, value: value }),
+    keepalive: true
+  });
+  if(!res.ok) throw new Error('Sheet POST ' + res.status);
+}
+
+function localDayGet(key){
+  try{
+    const raw = localStorage.getItem(SHEET_CACHE_PREFIX + key);
+    if(!raw) return null;
+    const obj = JSON.parse(raw);
+    return obj && obj.value ? JSON.parse(obj.value) : null;
+  }catch(e){ return null; }
+}
+
+function localDaySet(key, day){
+  try{
+    localStorage.setItem(SHEET_CACHE_PREFIX + key, JSON.stringify({ts:Date.now(), value:JSON.stringify(day)}));
+  }catch(e){}
+}
+
+const now = new Date();
+let viewYear = now.getFullYear();
+let viewMonth = now.getMonth();
+let selectedKey = dateKey(now.getFullYear(), now.getMonth(), now.getDate());
+let activeEventId = null;
+
+let dayIndex = new Set();
+const cache = {};
+let saveTimer = null;
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function dateKey(y,m,d){ return y + '-' + pad2(m+1) + '-' + pad2(d); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function initials(name){ return (name||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase(); }
+
+function emptyDay(){ return { events: [] }; }
+
+function newEvent(type){
+  const base = { id: uid(), type: type, createdAt: Date.now() };
+  if(type === 'atividade') return Object.assign(base, { name: '', observations: '' });
+  return Object.assign(base, {
+    agenda: [], progress: [], specialties: [], tasks: [], responsible: [],
+    meeting: { hora:'', local:'', participantes:'', notas:'' },
+    observations: '',
+    sourceGuiasId: null, sourceGuiasLabel: '', sourceTasks: []
+  });
+}
+
+function setStatus(saving){
+  const s = document.getElementById('statusLine');
+  const t = document.getElementById('statusText');
+  if(saving){ s.classList.add('saving'); t.textContent = 'A guardar…'; }
+  else { s.classList.remove('saving'); t.textContent = 'Guardado'; }
+}
+
+async function loadDayIndex(){
+  try{
+    if(SHEET_API_URL){
+      const keys = await sheetList('day:');
+      dayIndex = new Set(keys.map(k => k.replace('day:','')));
+    } else {
+      const res = await window.storage.list('day:', true);
+      dayIndex = new Set((res && res.keys ? res.keys : []).map(k => k.replace('day:','')));
+    }
+  }catch(e){
+    console.warn('Índice da Sheet indisponível:', e);
+    dayIndex = new Set();
+  }
+}
+
+let monthLoadToken = 0;
+
+async function loadMonthFromSheet(year, month){
+  if(!SHEET_API_URL) return;
+  const token = ++monthLoadToken;
+  const monthPrefix = year + '-' + pad2(month + 1);
+  const prefix = monthPrefix + '-';
+
+  try{
+    let days = {};
+    let monthLoaded = false;
+
+    // Primeiro tenta a leitura mensal, que é mais rápida.
+    try{
+      days = await sheetMonth(year, month);
+      monthLoaded = days && Object.keys(days).length > 0;
+    }catch(e){
+      console.warn('Leitura mensal indisponível; a usar leitura diária.', e);
+    }
+
+    // Se a ação "month" não estiver disponível no Apps Script, ou não
+    // devolver dados, procura as chaves dos dias desse mês e lê-as uma a uma.
+    if(!monthLoaded){
+      try{
+        const keys = await sheetList(prefix);
+        const monthKeys = keys
+          .map(k => k.replace(/^day:/, ''))
+          .filter(k => k.indexOf(prefix) === 0);
+
+        await Promise.all(monthKeys.map(async key => {
+          try{
+            const val = await sheetGet('day:' + key);
+            if(val){
+              days[key] = typeof val === 'string' ? JSON.parse(val) : val;
+            }
+          }catch(e){}
+        }));
+      }catch(e){
+        console.warn('Falha na leitura diária do mês:', e);
+      }
+    }
+
+    // Nunca aplicar uma resposta atrasada de outro mês.
+    if(token !== monthLoadToken || year !== viewYear || month !== viewMonth) return;
+
+    Object.keys(days).forEach(key => {
+      try{
+        const parsed = typeof days[key] === 'string' ? JSON.parse(days[key]) : days[key];
+        cache[key] = parsed || emptyDay();
+        localDaySet(key, cache[key]);
+        dayIndex.add(key);
+      }catch(e){}
+    });
+
+    // Não apagar dados já existentes na cache quando a resposta veio vazia.
+    // Quando recebemos uma lista concreta de dias, podemos limpar os que já
+    // não existem no servidor.
+    if(Object.keys(days).length){
+      dayIndex.forEach(key => {
+        if(key.indexOf(prefix) === 0 && !Object.prototype.hasOwnProperty.call(days, key)) {
+          delete cache[key];
+        }
+      });
+    }
+
+    renderCalendarCellsFromCache();
+    if(selectedKey.indexOf(prefix) === 0) await renderDayEvents();
+  }catch(e){
+    console.warn('Falha no carregamento do mês:', e);
+    renderCalendarCellsFromCache();
+  }
+}
+
+async function loadDay(key){
+  if(cache[key]) return cache[key];
+  const local = localDayGet(key);
+  if(local){ cache[key] = local; return local; }
+  try{
+    if(SHEET_API_URL){
+      const val = await sheetGet('day:' + key);
+      cache[key] = val ? JSON.parse(val) : emptyDay();
+      localDaySet(key, cache[key]);
+    } else {
+      const res = await window.storage.get('day:' + key, true);
+      cache[key] = res ? JSON.parse(res.value) : emptyDay();
+    }
+  }catch(e){ cache[key] = emptyDay(); }
+  return cache[key];
+}
+
+let saveVersion = 0;
+function queueSave(key){
+  setStatus(true);
+  const version = ++saveVersion;
+  clearTimeout(saveTimer);
+  // UI e cache local são imediatos; só a sincronização com a Sheet fica em background.
+  localDaySet(key, cache[key]);
+  dayIndex.add(key);
+  updateCalendarCell(key);
+  saveTimer = setTimeout(async () => {
+    if(version !== saveVersion) return;
+    try{
+      if(SHEET_API_URL){
+        await sheetSet('day:' + key, JSON.stringify(cache[key]));
+      } else {
+        await window.storage.set('day:' + key, JSON.stringify(cache[key]), true);
+      }
+      if(version === saveVersion) setStatus(false);
+    }catch(e){
+      console.error('Erro ao guardar', e);
+      if(version === saveVersion){
+        const t = document.getElementById('statusText');
+        t.textContent = 'Guardado localmente · sincronização pendente';
+        document.getElementById('statusLine').classList.remove('saving');
+      }
+    }
+  }, 500);
+}
+
+function renderCalendarCellsFromCache(){
+  document.querySelectorAll('.cal-day[data-key]').forEach(el => {
+    const key = el.dataset.key;
+    if(cache[key]) paintCalendarCell(key, cache[key]);
+  });
+}
+
+/* ---------- Calendar ---------- */
+function refreshMonth(){
+  renderCalendar();
+  if(SHEET_API_URL) loadMonthFromSheet(viewYear, viewMonth);
+}
+
+function buildControls(){
+  const ms = document.getElementById('monthSelect');
+  ms.innerHTML = MONTHS_PT.map((m,i) => `<option value="${i}">${m}</option>`).join('');
+  ms.value = viewMonth;
+  document.getElementById('yearInput').value = viewYear;
+
+  ms.addEventListener('change', () => {
+    viewMonth = parseInt(ms.value,10);
+    refreshMonth();
+  });
+
+  document.getElementById('yearInput').addEventListener('change', (e) => {
+    const v = parseInt(e.target.value,10);
+    if(v >= 2000 && v <= 2100){
+      viewYear = v;
+      refreshMonth();
+    }
+  });
+
+  document.getElementById('prevMonth').addEventListener('click', () => {
+    viewMonth--;
+    if(viewMonth < 0){ viewMonth = 11; viewYear--; }
+    ms.value = viewMonth;
+    document.getElementById('yearInput').value = viewYear;
+    refreshMonth();
+  });
+
+  document.getElementById('nextMonth').addEventListener('click', () => {
+    viewMonth++;
+    if(viewMonth > 11){ viewMonth = 0; viewYear++; }
+    ms.value = viewMonth;
+    document.getElementById('yearInput').value = viewYear;
+    refreshMonth();
+  });
+
+  document.getElementById('todayBtn').addEventListener('click', () => {
+    const t = new Date();
+    viewYear = t.getFullYear();
+    viewMonth = t.getMonth();
+    ms.value = viewMonth;
+    document.getElementById('yearInput').value = viewYear;
+    selectedKey = dateKey(t.getFullYear(), t.getMonth(), t.getDate());
+    refreshMonth();
+    selectDay(selectedKey);
+  });
+}
+
+function renderCalendar(){
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  WEEKDAYS_PT.forEach(w => {
+    const el = document.createElement('div'); el.className = 'cal-wd'; el.textContent = w; grid.appendChild(el);
+  });
+  const firstOfMonth = new Date(viewYear, viewMonth, 1);
+  let leading = firstOfMonth.getDay() - 1; if(leading < 0) leading = 6;
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  for(let i=0;i<leading;i++){ const el = document.createElement('div'); el.className = 'cal-day blank'; grid.appendChild(el); }
+  const t = new Date();
+  const todayKey = dateKey(t.getFullYear(), t.getMonth(), t.getDate());
+  for(let d=1; d<=daysInMonth; d++){
+    const key = dateKey(viewYear, viewMonth, d);
+    const el = document.createElement('div');
+    el.className = 'cal-day'; el.dataset.key = key;
+    if(key === todayKey) el.classList.add('today');
+    if(key === selectedKey) el.classList.add('selected');
+    el.innerHTML = '<div class="daynum">' + d + '</div>';
+    el.addEventListener('click', () => selectDay(key));
+    grid.appendChild(el);
+    if(cache[key]) paintCalendarCell(key, cache[key]);
+  }
+}
+
+function paintCalendarCell(key, day){
+  const el = document.querySelector('.cal-day[data-key="' + key + '"]');
+  if(!el) return;
+  const acts = (day.events || []).filter(e => e.type === 'atividade' && e.name && e.name.trim());
+  const hasGuias = (day.events || []).some(e => e.type === 'guias');
+  const hasEquipa = (day.events || []).some(e => e.type === 'equipa');
+  let html = '<div class="daynum">' + parseInt(key.split('-')[2],10) + '</div>';
+  if(acts.length) html += '<div class="actline">' + escapeHtml(acts.map(a => a.name).join(', ')) + '</div>';
+  if(hasGuias || hasEquipa) html += '<div class="dotrow">' + (hasGuias ? '<div class="dd guias"></div>' : '') + (hasEquipa ? '<div class="dd equipa"></div>' : '') + '</div>';
+  el.innerHTML = html;
+  if(key === dateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) el.classList.add('today');
+  if(key === selectedKey) el.classList.add('selected');
+}
+
+async function updateCalendarCell(key){
+  const day = cache[key] || await loadDay(key);
+  paintCalendarCell(key, day);
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+function formatSelectedLabel(key){
+  const [y,m,d] = key.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  const wd = WEEKDAYS_FULL[(dt.getDay()+6)%7];
+  return wd + ', ' + d + ' de ' + MONTHS_PT[m-1].toLowerCase() + ' de ' + y;
+}
+
+async function selectDay(key){
+  selectedKey = key;
+  activeEventId = null;
+  document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
+  const el = document.querySelector('.cal-day[data-key="' + key + '"]');
+  if(el) el.classList.add('selected');
+  document.getElementById('selectedDateLabel').textContent = formatSelectedLabel(key);
+  const selectedDay = await loadDay(key);
+  paintCalendarCell(key, selectedDay);
+  await renderDayEvents();
+}
+
+/* ---------- Day events (chips) ---------- */
+async function renderDayEvents(){
+  const day = await loadDay(selectedKey);
+  document.getElementById('selectedDateLabel').textContent = formatSelectedLabel(selectedKey);
+  const chipRow = document.getElementById('chipRow');
+  chipRow.innerHTML = '';
+  document.getElementById('emptyNote').style.display = day.events.length ? 'none' : 'block';
+
+  if(!activeEventId && day.events.length) activeEventId = day.events[0].id;
+  if(day.events.length === 0) activeEventId = null;
+
+  day.events.forEach(ev => {
+    const chip = document.createElement('div');
+    chip.className = 'chip type-' + ev.type + (ev.id === activeEventId ? ' active' : '');
+    const dot = document.createElement('div'); dot.className = 'cdot';
+    const label = document.createElement('span');
+    label.textContent = chipLabel(ev);
+    const del = document.createElement('span'); del.className = 'cx'; del.textContent = '✕';
+    del.addEventListener('click', (e) => {
+      e.stopPropagation();
+      day.events = day.events.filter(x => x.id !== ev.id);
+      if(activeEventId === ev.id) activeEventId = null;
+      renderDayEvents();
+      queueSave(selectedKey);
+    });
+    chip.appendChild(dot); chip.appendChild(label); chip.appendChild(del);
+    chip.addEventListener('click', () => { activeEventId = ev.id; renderDayEvents(); });
+    chipRow.appendChild(chip);
+  });
+
+  await renderEventForm();
+}
+
+function chipLabel(ev){
+  if(ev.type === 'atividade') return ev.name && ev.name.trim() ? ev.name : 'Nova atividade';
+  const hora = ev.meeting && ev.meeting.hora ? ' · ' + ev.meeting.hora : '';
+  return TYPE_LABEL[ev.type] + hora;
+}
+
+document.querySelectorAll('.add-ev-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const type = btn.dataset.type;
+    const day = await loadDay(selectedKey);
+    const ev = newEvent(type);
+    if(type === 'equipa'){
+      await autofillFromGuias(ev, day);
+      await importNextDirectionWarnings(ev, day);
+    }
+    day.events.push(ev);
+    activeEventId = ev.id;
+    renderDayEvents();
+    queueSave(selectedKey);
+  });
+});
+
+/* ---------- Cross-linking: find preceding "Reunião de guias" ---------- */
+async function findPrecedingGuias(dateKeyTarget, createdAtTarget, excludeId){
+  const keys = Array.from(dayIndex).filter(k => k <= dateKeyTarget).sort().reverse();
+  for(const key of keys){
+    const day = await loadDay(key);
+    let candidates = day.events.filter(e => e.type === 'guias' && e.id !== excludeId);
+    if(key === dateKeyTarget){
+      candidates = candidates.filter(e => e.createdAt < createdAtTarget);
+    }
+    if(candidates.length){
+      candidates.sort((a,b) => b.createdAt - a.createdAt);
+      return { day: key, event: candidates[0] };
+    }
+  }
+  return null;
+}
+
+async function autofillFromGuias(equipaEvent, currentDay){
+  // also consider guias events already added to currentDay in-memory but not yet saved to storage/index
+  let found = null;
+  const localCandidates = (currentDay.events || []).filter(e => e.type === 'guias' && e.createdAt < equipaEvent.createdAt);
+  if(localCandidates.length){
+    localCandidates.sort((a,b) => b.createdAt - a.createdAt);
+    found = { day: selectedKey, event: localCandidates[0] };
+  } else {
+    found = await findPrecedingGuias(selectedKey, equipaEvent.createdAt, equipaEvent.id);
+  }
+  if(found){
+    equipaEvent.progress = JSON.parse(JSON.stringify(found.event.progress || []));
+    equipaEvent.specialties = JSON.parse(JSON.stringify(found.event.specialties || []));
+    equipaEvent.sourceTasks = JSON.parse(JSON.stringify(found.event.tasks || []));
+    equipaEvent.sourceGuiasId = found.event.id;
+    equipaEvent.sourceGuiasLabel = 'Reunião de guias de ' + formatSelectedLabel(found.day) + (found.event.meeting.hora ? ' · ' + found.event.meeting.hora : '');
+  } else {
+    equipaEvent.sourceGuiasLabel = '';
+  }
+}
+
+
+/* ---------- Avisos da Direção -> próxima Reunião de Equipa ---------- */
+async function getDirectionRecordsBefore(targetKey){
+  const records = [];
+  try{
+    if(SHEET_API_URL){
+      const keys = await sheetList('direcao:');
+      const relevant = keys
+        .map(k => k.replace(/^direcao:/,''))
+        .filter(k => k < targetKey)
+        .sort();
+      await Promise.all(relevant.map(async key => {
+        try{
+          const val = await sheetGet('direcao:' + key);
+          if(val){
+            const rec = typeof val === 'string' ? JSON.parse(val) : val;
+            if(rec && rec.avisos && String(rec.avisos).trim()){
+              records.push({key, rec});
+            }
+          }
+        }catch(e){}
+      }));
+    }else{
+      // Fallback local: inspect direction records cached in this browser.
+      Object.keys(direcaoCache).forEach(key => {
+        if(key < targetKey){
+          const rec = direcaoCache[key];
+          if(rec && rec.avisos && String(rec.avisos).trim()){
+            records.push({key, rec});
+          }
+        }
+      });
+    }
+  }catch(e){
+    console.warn('Não foi possível procurar avisos da Direção:', e);
+  }
+  return records.sort((a,b)=>a.key.localeCompare(b.key));
+}
+
+async function hasTeamMeetingBetween(startKey, endKey){
+  const keys = Array.from(dayIndex)
+    .filter(k => k > startKey && k < endKey)
+    .sort();
+
+  for(const key of keys){
+    try{
+      const day = await loadDay(key);
+      if((day.events || []).some(e => e.type === 'equipa')){
+        return true;
+      }
+    }catch(e){}
+  }
+  return false;
+}
+
+async function importNextDirectionWarnings(equipaEvent, currentDay){
+  const targetKey = selectedKey;
+  const directions = await getDirectionRecordsBefore(targetKey);
+  if(!directions.length) return;
+
+  // A reunião de Direção relevante é a mais recente antes desta reunião de equipa.
+  const latest = directions[directions.length - 1];
+
+  // Só a PRIMEIRA reunião de equipa depois dessa Direção recebe os avisos.
+  if(await hasTeamMeetingBetween(latest.key, targetKey)) return;
+
+  const warnings = String(latest.rec.avisos || '').trim();
+  if(!warnings) return;
+
+  const block =
+    'AVISOS DA REUNIÃO DE DIREÇÃO (' + formatSelectedLabel(latest.key) + ')\\n' +
+    warnings;
+
+  // Guarda uma marca interna para não importar novamente o mesmo aviso.
+  equipaEvent.directionWarningsFrom = latest.key;
+
+  const current = String(equipaEvent.observations || '').trim();
+  if(!current){
+    equipaEvent.observations = block;
+  }else if(!current.includes(block)){
+    equipaEvent.observations = current + '\\n\\n' + block;
+  }
+}
+
+/* ---------- Event form rendering ---------- */
+async function renderEventForm(){
+  const container = document.getElementById('eventForm');
+  container.innerHTML = '';
+  if(!activeEventId){ return; }
+  const day = await loadDay(selectedKey);
+  const ev = day.events.find(e => e.id === activeEventId);
+  if(!ev) return;
+
+  if(ev.type === 'atividade'){
+    const tpl = document.getElementById('tpl-atividade').content.cloneNode(true);
+    container.appendChild(tpl);
+    const input = document.getElementById('f-activity-name');
+    input.value = ev.name;
+    input.addEventListener('input', () => { ev.name = input.value; queueSave(selectedKey); });
+
+    const activityObs = document.getElementById('f-activity-observations');
+    activityObs.value = ev.observations || '';
+    activityObs.addEventListener('input', () => {
+      ev.observations = activityObs.value;
+      queueSave(selectedKey);
+    });
+    return;
+  }
+
+  // guias or equipa share the same template
+  const tpl = document.getElementById('tpl-meeting').content.cloneNode(true);
+  container.appendChild(tpl);
+  document.getElementById('f-meetingTitle').textContent = TYPE_LABEL[ev.type];
+
+  renderAgenda(ev);
+  renderPillList('f-progressList', ev.progress, ev);
+  renderPillList('f-specList', ev.specialties, ev);
+  renderTasks(ev);
+  renderResponsible(ev);
+  renderMeetingFields(ev);
+
+  if(ev.type === 'equipa' && !ev.directionWarningsFrom){
+    const beforeWarnings = ev.observations || '';
+    await importNextDirectionWarnings(ev, day);
+    if(ev.directionWarningsFrom && ev.observations !== beforeWarnings){
+      queueSave(selectedKey);
+    }
+  }
+
+  document.getElementById('f-observations').value = ev.observations;
+
+  if(ev.type === 'equipa'){
+    const progNote = document.getElementById('f-progressAutoNote');
+    const specNote = document.getElementById('f-specAutoNote');
+    const noteHtml = ev.sourceGuiasLabel
+      ? '<div class="auto-note">Preenchido a partir de: ' + escapeHtml(ev.sourceGuiasLabel) + ' <button class="resync-btn">Voltar a sincronizar</button></div>'
+      : '<div class="auto-note">Nenhuma reunião de guias anterior encontrada.</div>';
+    progNote.innerHTML = noteHtml;
+    specNote.innerHTML = noteHtml;
+    document.querySelectorAll('.resync-btn').forEach(b => b.addEventListener('click', async () => {
+      await autofillFromGuias(ev, day);
+      renderEventForm();
+      queueSave(selectedKey);
+    }));
+
+    const srcCard = document.getElementById('f-sourceTasksCard');
+    srcCard.style.display = 'block';
+    document.getElementById('f-sourceTasksNote').textContent = ev.sourceGuiasLabel || 'Sem tarefas de referência.';
+    const srcList = document.getElementById('f-sourceTasksList');
+    srcList.innerHTML = '';
+    (ev.sourceTasks || []).forEach(t => {
+      const row = document.createElement('div');
+      row.className = 'source-item' + (t.done ? ' done' : '');
+      row.innerHTML = '<div class="sbox"><svg viewBox="0 0 24 24" fill="none" stroke="#8A5F14" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="stxt">' + escapeHtml(t.text) + '</div>';
+      srcList.appendChild(row);
+    });
+    if((ev.sourceTasks || []).length === 0){
+      srcList.innerHTML = '<div style="font-size:13px;color:#8A5F14;opacity:.75;">Sem tarefas registadas nessa reunião.</div>';
+    }
+  } else {
+    document.getElementById('f-sourceTasksCard').style.display = 'none';
+  }
+
+  wireMeetingHandlers(ev, day);
+}
+
+function checkSvg(color){
+  color = color || 'white';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+}
+
+function renderAgenda(ev){
+  const list = document.getElementById('f-agendaList');
+  list.innerHTML = '';
+  ev.agenda.forEach((item, i) => {
+    const li = document.createElement('li'); li.className = 'item';
+    const idx = document.createElement('div'); idx.className = 'idx'; idx.textContent = (i+1) + '.';
+    const txt = document.createElement('div'); txt.className = 'txt'; txt.contentEditable = 'true'; txt.textContent = item.text;
+    txt.addEventListener('input', () => { item.text = txt.textContent; queueSave(selectedKey); });
+    const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕';
+    del.addEventListener('click', () => { ev.agenda = ev.agenda.filter(x => x.id !== item.id); renderEventForm(); queueSave(selectedKey); });
+    li.appendChild(idx); li.appendChild(txt); li.appendChild(del);
+    list.appendChild(li);
+  });
+}
+
+function renderPillList(elId, arr, ev){
+  const wrap = document.getElementById(elId);
+  wrap.innerHTML = '';
+  arr.forEach(item => {
+    const pill = document.createElement('div'); pill.className = 'pill';
+    const txt = document.createElement('span'); txt.className = 'txt'; txt.contentEditable = 'true'; txt.textContent = item.name;
+    txt.addEventListener('input', () => { item.name = txt.textContent; queueSave(selectedKey); });
+    const rm = document.createElement('button'); rm.className = 'rm'; rm.textContent = '✕';
+    rm.addEventListener('click', () => {
+      const idx = arr.findIndex(x => x.id === item.id);
+      if(idx > -1) arr.splice(idx,1);
+      renderEventForm(); queueSave(selectedKey);
+    });
+    pill.appendChild(txt); pill.appendChild(rm);
+    wrap.appendChild(pill);
+  });
+}
+
+function renderTasks(ev){
+  const list = document.getElementById('f-tasksList');
+  list.innerHTML = '';
+  document.getElementById('f-tasksCount').textContent = ev.tasks.length
+    ? ev.tasks.filter(t=>t.done).length + '/' + ev.tasks.length + ' concluídas' : '';
+  ev.tasks.forEach(item => {
+    const li = document.createElement('li'); li.className = 'item' + (item.done ? ' done' : '');
+    const box = document.createElement('div'); box.className = 'box'; box.innerHTML = checkSvg();
+    box.addEventListener('click', () => {
+      item.done = !item.done; li.classList.toggle('done');
+      document.getElementById('f-tasksCount').textContent = ev.tasks.filter(t=>t.done).length + '/' + ev.tasks.length + ' concluídas';
+      queueSave(selectedKey);
+    });
+    const txt = document.createElement('div'); txt.className = 'txt'; txt.contentEditable = 'true'; txt.textContent = item.text;
+    txt.addEventListener('input', () => { item.text = txt.textContent; queueSave(selectedKey); });
+    const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕';
+    del.addEventListener('click', () => { ev.tasks = ev.tasks.filter(x => x.id !== item.id); renderEventForm(); queueSave(selectedKey); });
+    li.appendChild(box); li.appendChild(txt); li.appendChild(del);
+    list.appendChild(li);
+  });
+}
+
+function renderResponsible(ev){
+  const wrap = document.getElementById('f-respList');
+  wrap.innerHTML = '';
+  ev.responsible.forEach(r => {
+    const row = document.createElement('div'); row.className = 'resp-row';
+    const av = document.createElement('div'); av.className = 'avatar'; av.textContent = initials(r.name);
+    const name = document.createElement('div'); name.className = 'name'; name.contentEditable = 'true'; name.textContent = r.name;
+    name.addEventListener('input', () => { r.name = name.textContent; av.textContent = initials(r.name); queueSave(selectedKey); });
+    const arrow = document.createElement('div'); arrow.className = 'arrow'; arrow.textContent = '→';
+    const task = document.createElement('div'); task.className = 'task'; task.contentEditable = 'true'; task.textContent = r.task;
+    task.addEventListener('input', () => { r.task = task.textContent; queueSave(selectedKey); });
+    const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕';
+    del.addEventListener('click', () => { ev.responsible = ev.responsible.filter(x => x.id !== r.id); renderEventForm(); queueSave(selectedKey); });
+    row.appendChild(av); row.appendChild(name); row.appendChild(arrow); row.appendChild(task); row.appendChild(del);
+    wrap.appendChild(row);
+  });
+}
+
+function renderMeetingFields(ev){
+  document.getElementById('f-meetHora').value = ev.meeting.hora;
+  document.getElementById('f-agendaHora').value = ev.meeting.hora;
+  document.getElementById('f-meetLocal').value = ev.meeting.local;
+  document.getElementById('f-meetParticipantes').value = ev.meeting.participantes;
+  document.getElementById('f-meetNotas').value = ev.meeting.notas;
+}
+
+function wireMeetingHandlers(ev, day){
+  document.getElementById('f-agendaAddBtn').addEventListener('click', () => addAgenda(ev));
+  document.getElementById('f-agendaInput').addEventListener('keydown', e => { if(e.key==='Enter') addAgenda(ev); });
+
+  document.getElementById('f-progressAddBtn').addEventListener('click', () => addPill(ev.progress, 'f-progressInput'));
+  document.getElementById('f-progressInput').addEventListener('keydown', e => { if(e.key==='Enter') addPill(ev.progress, 'f-progressInput'); });
+
+  document.getElementById('f-specAddBtn').addEventListener('click', () => addPill(ev.specialties, 'f-specInput'));
+  document.getElementById('f-specInput').addEventListener('keydown', e => { if(e.key==='Enter') addPill(ev.specialties, 'f-specInput'); });
+
+  document.getElementById('f-taskAddBtn').addEventListener('click', () => addTask(ev));
+  document.getElementById('f-taskInput').addEventListener('keydown', e => { if(e.key==='Enter') addTask(ev); });
+
+  document.getElementById('f-respAddBtn').addEventListener('click', () => addResp(ev));
+  document.getElementById('f-respNameInput').addEventListener('keydown', e => { if(e.key==='Enter') addResp(ev); });
+  document.getElementById('f-respTaskInput').addEventListener('keydown', e => { if(e.key==='Enter') addResp(ev); });
+
+  document.getElementById('f-meetHora').addEventListener('input', (e) => {
+    ev.meeting.hora = e.target.value;
+    const a = document.getElementById('f-agendaHora'); if(a) a.value = e.target.value;
+    queueSave(selectedKey);
+  });
+  document.getElementById('f-agendaHora').addEventListener('input', (e) => {
+    ev.meeting.hora = e.target.value;
+    const m = document.getElementById('f-meetHora'); if(m) m.value = e.target.value;
+    queueSave(selectedKey);
+  });
+  document.getElementById('f-meetLocal').addEventListener('input', (e) => { ev.meeting.local = e.target.value; queueSave(selectedKey); });
+  document.getElementById('f-meetParticipantes').addEventListener('input', (e) => { ev.meeting.participantes = e.target.value; queueSave(selectedKey); });
+  document.getElementById('f-meetNotas').addEventListener('input', (e) => { ev.meeting.notas = e.target.value; queueSave(selectedKey); });
+  document.getElementById('f-observations').addEventListener('input', (e) => { ev.observations = e.target.value; queueSave(selectedKey); });
+
+  document.getElementById('f-agendaPdfBtn').addEventListener('click', () => exportAgendaPdf(ev));
+  document.getElementById('f-ataPdfBtn').addEventListener('click', () => exportAtaPdf(ev));
+}
+
+function addAgenda(ev){
+  const input = document.getElementById('f-agendaInput');
+  const val = input.value.trim(); if(!val) return;
+  ev.agenda.push({ id: uid(), text: val }); input.value = '';
+  renderEventForm(); queueSave(selectedKey);
+}
+function addPill(arr, inputId){
+  const input = document.getElementById(inputId);
+  const val = input.value.trim(); if(!val) return;
+  arr.push({ id: uid(), name: val }); input.value = '';
+  renderEventForm(); queueSave(selectedKey);
+}
+function addTask(ev){
+  const input = document.getElementById('f-taskInput');
+  const val = input.value.trim(); if(!val) return;
+  ev.tasks.push({ id: uid(), text: val, done: false }); input.value = '';
+  renderEventForm(); queueSave(selectedKey);
+}
+function addResp(ev){
+  const nameInput = document.getElementById('f-respNameInput');
+  const taskInput = document.getElementById('f-respTaskInput');
+  const name = nameInput.value.trim(); if(!name) return;
+  ev.responsible.push({ id: uid(), name: name, task: taskInput.value.trim() });
+  nameInput.value = ''; taskInput.value = '';
+  renderEventForm(); queueSave(selectedKey);
+}
+
+/* ---------- PDF export — layout baseado no modelo "Formato para jogo" ---------- */
+const PDF_BRAND_HEADER_URL = './assets/pdf-header.jpg';
+const PDF_BRAND_FOOTER_URL = './assets/pdf-footer.jpg';
+const PDF_BRAND_COMPASS_URL = './assets/pdf-compass.jpg';
+let PDF_BRAND_HEADER = null, PDF_BRAND_FOOTER = null, PDF_BRAND_COMPASS = null;
+
+function loadScriptOnce(src){
+  return new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-dynamic-src="'+src+'"]');
+    if(existing){ existing.addEventListener('load',resolve,{once:true}); existing.addEventListener('error',reject,{once:true}); return; }
+    const script=document.createElement('script'); script.src=src; script.async=true; script.dataset.dynamicSrc=src; script.onload=resolve; script.onerror=reject; document.head.appendChild(script);
+  });
+}
+async function imageUrlToDataUrl(url){
+  const res=await fetch(url,{cache:'force-cache'});
+  const blob=await res.blob();
+  return await new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=reject; reader.readAsDataURL(blob); });
+}
+async function ensurePdfAssets(){
+  if(!window.jspdf || !window.jspdf.jsPDF) await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  if(!PDF_BRAND_HEADER){
+    [PDF_BRAND_HEADER,PDF_BRAND_FOOTER,PDF_BRAND_COMPASS]=await Promise.all([imageUrlToDataUrl(PDF_BRAND_HEADER_URL),imageUrlToDataUrl(PDF_BRAND_FOOTER_URL),imageUrlToDataUrl(PDF_BRAND_COMPASS_URL)]);
+  }
+}
+
+function pdfFrame(doc, firstPage=false){
+  const W=doc.internal.pageSize.getWidth();
+  const H=doc.internal.pageSize.getHeight();
+  // Cabeçalho e rodapé são as imagens do modelo enviado, preservando a identidade gráfica.
+  doc.addImage(PDF_BRAND_HEADER,'JPEG',0,0,W,27);
+  doc.addImage(PDF_BRAND_FOOTER,'JPEG',0,H-18,W,18);
+  // Rosa dos ventos discreta no canto superior direito, como no documento de referência.
+  doc.addImage(PDF_BRAND_COMPASS,'JPEG',154,43,39,39);
+}
+
+function pdfStart(doc, y=45){
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(11,53,88);
+  doc.setDrawColor(210,222,232);
+  doc.setLineWidth(.25);
+  return y;
+}
+
+function pdfEnsure(doc,y,needed=10){
+  const H=doc.internal.pageSize.getHeight();
+  if(y+needed>H-25){
+    doc.addPage();
+    pdfFrame(doc);
+    return 47;
+  }
+  return y;
+}
+
+function pdfTitle(doc,title,y){
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.setTextColor(11,53,88);
+  const lines=doc.splitTextToSize(String(title),150);
+  doc.text(lines,14,y);
+  return y + lines.length*7 + 5;
+}
+
+function pdfLabelLine(doc,label,value,y){
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10.5);
+  doc.setTextColor(11,53,88);
+  doc.text(label,14,y);
+  const x=14+doc.getTextWidth(label)+3;
+  doc.setFont('helvetica','normal');
+  doc.setTextColor(28,33,38);
+  const lines=doc.splitTextToSize(String(value||'—'),doc.internal.pageSize.getWidth()-x-14);
+  doc.text(lines,x,y);
+  return y + Math.max(1,lines.length)*5.3 + 2;
+}
+
+function pdfSection(doc,label,y){
+  y=pdfEnsure(doc,y,13);
+  doc.setFillColor(238,246,251);
+  doc.setDrawColor(180,207,224);
+  doc.roundedRect(14,y-5,182,10,2.5,2.5,'FD');
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(10.5);
+  doc.setTextColor(21,90,147);
+  doc.text(label,19,y+1.5);
+  return y+12;
+}
+
+function pdfBody(doc,value,y,opts={}){
+  const size=opts.size||10.5;
+  const x=opts.x||14;
+  const width=opts.width||182;
+  const leading=opts.leading||5.4;
+  doc.setFont('helvetica',opts.bold?'bold':'normal');
+  doc.setFontSize(size);
+  doc.setTextColor(28,33,38);
+  const lines=doc.splitTextToSize(String(value||'—'),width);
+  for(const line of lines){
+    y=pdfEnsure(doc,y,leading+1);
+    doc.text(line,x,y);
+    y+=leading;
+  }
+  return y;
+}
+
+async function getMeetingNumber(ev){
+  let count=0;
+  const keys=Array.from(dayIndex).filter(k=>k<=selectedKey).sort();
+  if(!keys.includes(selectedKey)) keys.push(selectedKey);
+  keys.sort();
+  for(const key of keys){
+    let day;
+    try{
+      day=await Promise.race([loadDay(key),new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),2500))]);
+    }catch(e){ day=cache[key]||{events:[]}; }
+    const meetings=(day.events||[]).filter(e=>e.type===ev.type).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+    for(const item of meetings){
+      if(key<selectedKey || (key===selectedKey && (item.createdAt||0)<=(ev.createdAt||0))) count++;
+    }
+  }
+  return count||1;
+}
+
+async function exportAgendaPdf(ev){
+  setStatus(true);
+  try{
+    await ensurePdfAssets();
+    if(!window.jspdf || !window.jspdf.jsPDF){
+      alert('A biblioteca de PDF não carregou. Verifica a ligação à internet e volta a abrir a página.');
+      return;
+    }
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const number=await getMeetingNumber(ev);
+    const isGuias=ev.type==='guias';
+    const tipo=isGuias?'guias':'equipa de animação';
+    const title=isGuias?'Reunião de Guias nº ':'Reunião de Equipa de Animação nº ';
+    const subject=isGuias?'Reunião de Guias':'Reunião de Equipa de Animação';
+    const location=ev.meeting.local || 'secretaria do agrupamento nº5 Ronfe';
+    const hora=ev.meeting.hora || '—';
+    const dateText=formatSelectedLabel(selectedKey);
+    pdfFrame(doc,true);
+    let y=47;
+    y=pdfTitle(doc,title+number,y);
+    y=pdfLabelLine(doc,'ASSUNTO:',subject,y+2);
+    y=pdfBody(doc,(isGuias?'Guia de Comunidade:':'Chefe de unidade:')+' Venho convocar a reunião de '+tipo+', para o dia '+dateText+', pelas '+hora+', que se realizará na '+location,y+2,{width:150,leading:5.7});
+    y+=5;
+    y=pdfSection(doc,'Ordem de Trabalhos:',y);
+    const items=ev.agenda||[];
+    if(!items.length){ y=pdfBody(doc,'(Ordem de trabalhos)',y,{x:20,width:170}); }
+    else items.forEach((item,i)=>{
+      y=pdfEnsure(doc,y,10);
+      doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(11,53,88);
+      doc.text((i+1)+'.',19,y);
+      y=pdfBody(doc,item.text||'',y,{x:29,width:163,leading:5.6});
+      y+=2;
+    });
+    pdfFrame(doc);
+    doc.save('ordem-trabalhos-'+ev.type+'-'+selectedKey+'.pdf');
+  }catch(e){
+    console.error('Erro ao gerar ordem de trabalhos:',e);
+    alert('Não foi possível gerar a ordem de trabalhos em PDF. Tenta novamente.');
+  }finally{ setStatus(false); }
+}
+
+async function exportAtaPdf(ev){
+  setStatus(true);
+  try{
+    await ensurePdfAssets();
+    if(!window.jspdf || !window.jspdf.jsPDF){
+      alert('A biblioteca de PDF não carregou. Verifica a ligação à internet e volta a abrir a página.');
+      return;
+    }
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const number=await getMeetingNumber(ev);
+    const W=doc.internal.pageSize.getWidth();
+    const isGuias=ev.type==='guias';
+    const title=isGuias?'Ata da Reunião de Guias nº ':'Ata da Reunião de Equipa de Animação nº ';
+    const subject=isGuias?'Reunião de Guias':'Reunião de Equipa de Animação';
+    pdfFrame(doc,true);
+    let y=47;
+    y=pdfTitle(doc,title+number,y);
+    y=pdfLabelLine(doc,'ASSUNTO:',subject,y+2);
+    y=pdfLabelLine(doc,'Data:',formatSelectedLabel(selectedKey),y);
+    y=pdfLabelLine(doc,'Hora:',ev.meeting.hora||'—',y);
+    y=pdfLabelLine(doc,'Local:',ev.meeting.local||'—',y);
+    y=pdfLabelLine(doc,'Participantes:',ev.meeting.participantes||'—',y);
+    y+=3;
+
+    y=pdfSection(doc,'Ordem de Trabalhos:',y);
+    const items=ev.agenda||[];
+    if(!items.length) y=pdfBody(doc,'(Sem pontos registados.)',y,{x:19,width:177});
+    else items.forEach((item,i)=>{
+      y=pdfEnsure(doc,y,10);
+      doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(11,53,88);
+      doc.text((i+1)+'.',19,y);
+      y=pdfBody(doc,item.text||'',y,{x:29,width:163,leading:5.5});
+      y+=2;
+    });
+
+    y+=3; y=pdfSection(doc,'Progresso',y);
+    if(ev.type==='equipa'&&ev.sourceGuiasLabel) y=pdfBody(doc,'(a partir de: '+ev.sourceGuiasLabel+')',y,{x:19,width:177});
+    y=pdfBody(doc,ev.progress.length?ev.progress.map(p=>p.name).join(', '):'Sem nomes registados.',y,{x:19,width:177});
+
+    y+=3; y=pdfSection(doc,'Especialidades',y);
+    y=pdfBody(doc,ev.specialties.length?ev.specialties.map(s=>s.name).join(', '):'Sem nomes registados.',y,{x:19,width:177});
+
+    if(ev.type==='equipa'){
+      y+=3; y=pdfSection(doc,'Tarefas da reunião de guias',y);
+      if(ev.sourceGuiasLabel) y=pdfBody(doc,ev.sourceGuiasLabel,y,{x:19,width:177});
+      if(!(ev.sourceTasks||[]).length) y=pdfBody(doc,'Sem tarefas de referência.',y,{x:19,width:177});
+      else ev.sourceTasks.forEach(t=>{ y=pdfBody(doc,(t.done?'[Concluída] ':'[Pendente] ')+t.text,y,{x:19,width:177}); });
+    }
+
+    y+=3; y=pdfSection(doc,'Tarefas',y);
+    if(!ev.tasks.length) y=pdfBody(doc,'Sem tarefas registadas.',y,{x:19,width:177});
+    else ev.tasks.forEach(t=>{ y=pdfBody(doc,(t.done?'[Concluída] ':'[Pendente] ')+t.text,y,{x:19,width:177}); });
+
+    y+=3; y=pdfSection(doc,'Responsáveis',y);
+    if(!ev.responsible.length) y=pdfBody(doc,'Sem responsáveis registados.',y,{x:19,width:177});
+    else ev.responsible.forEach(r=>{
+      y=pdfBody(doc,'• '+(String(r.name||'').trim()||'Responsável'),y,{x:19,width:177,bold:true});
+      if(String(r.task||'').trim()) y=pdfBody(doc,'Tarefa: '+String(r.task).trim(),y,{x:25,width:171});
+      y+=1.5;
+    });
+
+    if(ev.meeting.notas){
+      y+=4; y=pdfSection(doc,'AVALIAÇÕES',y);
+      y=pdfBody(doc,ev.meeting.notas,y,{x:19,width:177,leading:5.6});
+    }
+
+    y+=3; y=pdfSection(doc,'Observações',y);
+    y=pdfBody(doc,ev.observations||'Sem observações.',y,{x:19,width:177,leading:5.6});
+
+    // O frame já é desenhado em todas as páginas quando o conteúdo faz page-break.
+    pdfFrame(doc);
+    doc.save('ata-'+ev.type+'-'+selectedKey+'.pdf');
+  }catch(e){
+    console.error('Erro ao gerar ata:',e);
+    alert('Não foi possível gerar a ata em PDF. Tenta novamente.');
+  }finally{ setStatus(false); }
+}
+
+
+/* ---------- Reuniões de Direção ---------- */
+const DIRECAO_STORAGE_PREFIX = 'comunidade111:direcao:';
+const direcaoCache = {};
+let dirViewYear = new Date().getFullYear();
+let dirViewMonth = new Date().getMonth();
+let dirSelectedKey = dateKey(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+let dirRecord = null;
+let dirSourceEvents = [];
+
+function isFirstFriday(key){
+  const [y,m,d] = key.split('-').map(Number);
+  const dt = new Date(y,m-1,d);
+  return dt.getDay() === 5 && d <= 7;
+}
+function isLastFriday(key){
+  const [y,m,d] = key.split('-').map(Number);
+  const dt = new Date(y,m-1,d);
+  if(dt.getDay() !== 5) return false;
+  const next = new Date(y,m-1,d+7);
+  return next.getMonth() !== m-1;
+}
+function getDirectionPeriod(key){
+  const [y,m] = key.split('-').map(Number);
+  if(isFirstFriday(key)){
+    const dt = new Date(y,m-2,1);
+    return {year:dt.getFullYear(), month:dt.getMonth(), label:'mês anterior'};
+  }
+  if(isLastFriday(key)){
+    return {year:y, month:m-1, label:'mês atual'};
+  }
+  // Para uma reunião marcada noutro dia, usa o mês anterior como referência,
+  // mantendo o comportamento mais próximo de uma reunião no início do mês.
+  const dt = new Date(y,m-2,1);
+  return {year:dt.getFullYear(), month:dt.getMonth(), label:'mês anterior (reunião fora da 1.ª/última sexta)'};
+}
+
+async function getMonthDayObjects(year,month){
+  const result = {};
+  const prefix = year + '-' + pad2(month+1) + '-';
+  if(SHEET_API_URL){
+    try{
+      const days = await sheetMonth(year,month);
+      Object.keys(days).forEach(key => {
+        try { result[key] = typeof days[key] === 'string' ? JSON.parse(days[key]) : days[key]; } catch(e){}
+      });
+      return result;
+    }catch(e){ console.warn('Direção: não foi possível carregar o mês da Sheet',e); }
+  }
+  const daysInMonth = new Date(year,month+1,0).getDate();
+  for(let d=1;d<=daysInMonth;d++){
+    const key=dateKey(year,month,d);
+    result[key]=await loadDay(key);
+  }
+  return result;
+}
+
+async function loadDirectionRecord(key){
+  if(direcaoCache[key]) return direcaoCache[key];
+  try{
+    if(SHEET_API_URL){
+      const val=await sheetGet('direcao:'+key);
+      direcaoCache[key]=val ? JSON.parse(val) : null;
+    }else{
+      const raw=localStorage.getItem(DIRECAO_STORAGE_PREFIX+key);
+      direcaoCache[key]=raw ? JSON.parse(raw) : null;
+    }
+  }catch(e){ direcaoCache[key]=null; }
+  return direcaoCache[key];
+}
+
+function newDirectionRecord(key){
+  return {
+    id:uid(),
+    date:key,
+    meeting:{hora:'',local:'',participantes:''},
+    ordemTrabalhos:'',
+    atividadesPassadas:[],
+    atividadesFuturas:'',
+    progressoNotas:'',
+    especialidadesNotas:'',
+    noitesCampo:'',
+    avisos:'',
+    createdAt:Date.now()
+  };
+}
+
+async function saveDirectionRecord(){
+  if(!dirRecord) return;
+  dirRecord.date=dirSelectedKey;
+  direcaoCache[dirSelectedKey]=dirRecord;
+  try{
+    if(SHEET_API_URL){
+      await sheetSet('direcao:'+dirSelectedKey,JSON.stringify(dirRecord));
+    }else{
+      localStorage.setItem(DIRECAO_STORAGE_PREFIX+dirSelectedKey,JSON.stringify(dirRecord));
+    }
+    setDirectionStatus('Guardado');
+    renderDirectionCalendar();
+  }catch(e){
+    console.error('Erro ao guardar reunião de direção',e);
+    setDirectionStatus('Guardado localmente · sincronização pendente');
+    try{localStorage.setItem(DIRECAO_STORAGE_PREFIX+dirSelectedKey,JSON.stringify(dirRecord));}catch(_){}
+  }
+}
+
+function setDirectionStatus(text){
+  const el=document.getElementById('dirSaveStatus');
+  if(el) el.textContent=text;
+}
+
+async function loadDirectionMonthMarks(year,month){
+  // Load records for the visible month without changing the normal app's day index.
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const keys=[];
+  for(let d=1;d<=daysInMonth;d++) keys.push(dateKey(year,month,d));
+  if(SHEET_API_URL){
+    try{
+      const keysOnServer=await sheetList('direcao:'+year+'-'+pad2(month+1));
+      keysOnServer.forEach(k=>{
+        const key=k.replace('direcao:','');
+        if(key.indexOf(year+'-'+pad2(month+1)+'-')===0 && !direcaoCache[key]){
+          keys.push(key);
+        }
+      });
+    }catch(e){}
+  }
+  await Promise.all([...new Set(keys)].map(async key=>{
+    if(!direcaoCache[key]){
+      try{
+        if(SHEET_API_URL){
+          const val=await sheetGet('direcao:'+key);
+          if(val) direcaoCache[key]=JSON.parse(val);
+        }else{
+          const raw=localStorage.getItem(DIRECAO_STORAGE_PREFIX+key);
+          if(raw) direcaoCache[key]=JSON.parse(raw);
+        }
+      }catch(e){}
+    }
+  }));
+}
+
+function renderDirectionCalendar(){
+  const grid=document.getElementById('dirCalGrid');
+  if(!grid) return;
+  grid.innerHTML='';
+  WEEKDAYS_PT.forEach(w=>{
+    const el=document.createElement('div'); el.className='cal-wd'; el.textContent=w; grid.appendChild(el);
+  });
+  const first=new Date(dirViewYear,dirViewMonth,1);
+  let leading=first.getDay()-1;if(leading<0)leading=6;
+  const total=new Date(dirViewYear,dirViewMonth+1,0).getDate();
+  for(let i=0;i<leading;i++){const el=document.createElement('div');el.className='cal-day blank';grid.appendChild(el);}
+  const today=new Date();
+  const todayKey=dateKey(today.getFullYear(),today.getMonth(),today.getDate());
+  for(let d=1;d<=total;d++){
+    const key=dateKey(dirViewYear,dirViewMonth,d);
+    const el=document.createElement('div');
+    el.className='cal-day';
+    el.dataset.key=key;
+    if(key===todayKey) el.classList.add('today');
+    if(key===dirSelectedKey) el.classList.add('direction-selected');
+    el.innerHTML='<div class="daynum">'+d+'</div>';
+    if(direcaoCache[key]){
+      el.classList.add('direction-meeting');
+      el.innerHTML+='<div class="dir-meeting-mark">Direção</div>';
+    }
+    el.addEventListener('click',()=>selectDirectionDay(key));
+    grid.appendChild(el);
+  }
+}
+
+async function selectDirectionDay(key){
+  dirSelectedKey=key;
+  const [y,m]=key.split('-').map(Number);
+  dirViewYear=y; dirViewMonth=m-1;
+  const ms=document.getElementById('dirMonthSelect');
+  if(ms) ms.value=dirViewMonth;
+  const yi=document.getElementById('dirYearInput');
+  if(yi) yi.value=dirViewYear;
+  await loadDirectionRecord(key);
+  await loadDirectionSources(key);
+  renderDirectionCalendar();
+  renderDirectionForm();
+}
+
+function renderDirectionForm(){
+  const rec=dirRecord || newDirectionRecord(dirSelectedKey);
+  dirRecord=rec;
+  const [y,m,d]=dirSelectedKey.split('-').map(Number);
+  document.getElementById('dirSelectedDateLabel').textContent=formatSelectedLabel(dirSelectedKey);
+  document.getElementById('dirHora').value=rec.meeting?.hora||'';
+  document.getElementById('dirLocal').value=rec.meeting?.local||'';
+  document.getElementById('dirParticipantes').value=rec.meeting?.participantes||'';
+  document.getElementById('dirOrdem').value=rec.ordemTrabalhos||'';
+  document.getElementById('dirFuture').value=rec.atividadesFuturas||'';
+  document.getElementById('dirProgressNotes').value=rec.progressoNotas||'';
+  document.getElementById('dirSpecNotes').value=rec.especialidadesNotas||'';
+  document.getElementById('dirCampNights').value=rec.noitesCampo||'';
+  document.getElementById('dirWarnings').value=rec.avisos||'';
+
+  const exists=direcaoCache[dirSelectedKey] ? 'reunião marcada' : 'nova reunião';
+  document.getElementById('dirMeetingStatus').textContent=exists;
+
+  const period=getDirectionPeriod(dirSelectedKey);
+  const periodLabel=MONTHS_PT[period.month]+' de '+period.year+' · '+period.label;
+  document.getElementById('dirPastPeriod').textContent=periodLabel;
+  document.getElementById('dirProgressPeriod').textContent=periodLabel;
+  document.getElementById('dirSpecPeriod').textContent=periodLabel;
+
+  renderDirectionActivities(rec);
+  renderDirectionPills('dirProgress',dirSourceEvents.progress||[]);
+  renderDirectionPills('dirSpecialties',dirSourceEvents.specialties||[]);
+
+  const sourceNote=dirSourceEvents.note||'';
+  document.getElementById('dirPastNote').textContent=sourceNote;
+  document.getElementById('dirProgressNote').textContent=sourceNote;
+  document.getElementById('dirSpecNote').textContent=sourceNote;
+}
+
+function renderDirectionActivities(rec){
+  const wrap=document.getElementById('dirPastActivities');
+  wrap.innerHTML='';
+  const activities=dirSourceEvents.activities||[];
+  if(!activities.length){
+    wrap.innerHTML='<div class="direction-empty">Não foram encontradas atividades no período selecionado.</div>';
+    return;
+  }
+  const saved=rec.atividadesPassadas||[];
+  activities.forEach((a,i)=>{
+    const existing=saved.find(x=>x.id===a.id || (x.date===a.date && x.name===a.name));
+    const row=document.createElement('div');
+    row.className='direction-activity';
+    const title=document.createElement('div'); title.className='direction-activity-title'; title.textContent=a.name||'Atividade sem nome';
+    const meta=document.createElement('div'); meta.className='direction-activity-meta'; meta.textContent=formatSelectedLabel(a.date);
+    const ta=document.createElement('textarea');
+    ta.placeholder='Escreve aqui a avaliação desta atividade...';
+    ta.value=existing?.evaluation||'';
+    ta.addEventListener('input',()=>{
+      const list=rec.atividadesPassadas||[];
+      const found=list.find(x=>x.id===a.id);
+      if(found) found.evaluation=ta.value;
+      else list.push({id:a.id,date:a.date,name:a.name,evaluation:ta.value});
+      rec.atividadesPassadas=list;
+      debounceDirectionSave();
+    });
+    row.appendChild(title);row.appendChild(meta);row.appendChild(ta);wrap.appendChild(row);
+  });
+}
+
+function renderDirectionPills(id,names){
+  const wrap=document.getElementById(id);wrap.innerHTML='';
+  const vals=[...new Set((names||[]).filter(Boolean))];
+  if(!vals.length){wrap.innerHTML='<div class="direction-empty">Sem registos no período selecionado.</div>';return;}
+  vals.forEach(n=>{const p=document.createElement('div');p.className='direction-pill';p.textContent=n;wrap.appendChild(p);});
+}
+
+async function loadDirectionSources(key){
+  const period=getDirectionPeriod(key);
+  const months=await getMonthDayObjects(period.year,period.month);
+  const activities=[];
+  const progress=[];
+  const specialties=[];
+  Object.keys(months).sort().forEach(dayKey=>{
+    const day=months[dayKey]||{};
+    (day.events||[]).forEach(ev=>{
+      if(ev.type==='atividade' && ev.name && ev.name.trim()){
+        activities.push({id:ev.id||uid(),date:dayKey,name:ev.name.trim()});
+      }
+      if(ev.type==='guias'){
+        (ev.progress||[]).forEach(x=>{if(x.name&&x.name.trim()) progress.push(x.name.trim());});
+        (ev.specialties||[]).forEach(x=>{if(x.name&&x.name.trim()) specialties.push(x.name.trim());});
+      }
+    });
+  });
+  dirSourceEvents={
+    activities,
+    progress:[...new Set(progress)],
+    specialties:[...new Set(specialties)],
+    note:'Dados automáticos a partir das reuniões de guias e atividades do período.'
+  };
+}
+
+let dirSaveTimer=null;
+function debounceDirectionSave(){
+  clearTimeout(dirSaveTimer);
+  setDirectionStatus('A guardar…');
+  dirSaveTimer=setTimeout(()=>saveDirectionRecord(),700);
+}
+
+function wireDirectionFields(){
+  const map={
+    dirHora:v=>{dirRecord.meeting.hora=v},
+    dirLocal:v=>{dirRecord.meeting.local=v},
+    dirParticipantes:v=>{dirRecord.meeting.participantes=v},
+    dirOrdem:v=>{dirRecord.ordemTrabalhos=v},
+    dirFuture:v=>{dirRecord.atividadesFuturas=v},
+    dirProgressNotes:v=>{dirRecord.progressoNotas=v},
+    dirSpecNotes:v=>{dirRecord.especialidadesNotas=v},
+    dirCampNights:v=>{dirRecord.noitesCampo=v},
+    dirWarnings:v=>{dirRecord.avisos=v}
+  };
+  Object.keys(map).forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener('input',()=>{map[id](el.value);debounceDirectionSave();});
+  });
+  document.getElementById('dirSaveBtn').addEventListener('click',saveDirectionRecord);
+  document.getElementById('dirSaveAllBtn').addEventListener('click',saveDirectionRecord);
+}
+
+async function refreshDirectionMonth(){
+  renderDirectionCalendar();
+  await loadDirectionMonthMarks(dirViewYear,dirViewMonth);
+  renderDirectionCalendar();
+}
+
+function buildDirectionControls(){
+  const ms=document.getElementById('dirMonthSelect');
+  ms.innerHTML=MONTHS_PT.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  ms.value=dirViewMonth;
+  document.getElementById('dirYearInput').value=dirViewYear;
+  ms.addEventListener('change',async()=>{dirViewMonth=parseInt(ms.value,10);await refreshDirectionMonth();});
+  document.getElementById('dirYearInput').addEventListener('change',async e=>{
+    const v=parseInt(e.target.value,10);
+    if(v>=2000&&v<=2100){dirViewYear=v;await refreshDirectionMonth();}
+  });
+  document.getElementById('dirPrevMonth').addEventListener('click',async()=>{
+    dirViewMonth--;if(dirViewMonth<0){dirViewMonth=11;dirViewYear--;}
+    ms.value=dirViewMonth;document.getElementById('dirYearInput').value=dirViewYear;await refreshDirectionMonth();
+  });
+  document.getElementById('dirNextMonth').addEventListener('click',async()=>{
+    dirViewMonth++;if(dirViewMonth>11){dirViewMonth=0;dirViewYear++;}
+    ms.value=dirViewMonth;document.getElementById('dirYearInput').value=dirViewYear;await refreshDirectionMonth();
+  });
+  document.getElementById('dirTodayBtn').addEventListener('click',async()=>{
+    const t=new Date();dirViewYear=t.getFullYear();dirViewMonth=t.getMonth();dirSelectedKey=dateKey(t.getFullYear(),t.getMonth(),t.getDate());
+    ms.value=dirViewMonth;document.getElementById('dirYearInput').value=dirViewYear;await refreshDirectionMonth();await selectDirectionDay(dirSelectedKey);
+  });
+}
+
+async function showDirectionView(){
+  document.getElementById('comunidadeView').style.display='none';
+  document.getElementById('direcaoView').style.display='block';
+  document.getElementById('navComunidade').classList.remove('active');
+  document.getElementById('navDirecao').classList.add('active');
+  await refreshDirectionMonth();
+  await selectDirectionDay(dirSelectedKey);
+}
+
+function showComunidadeView(){
+  document.getElementById('direcaoView').style.display='none';
+  document.getElementById('comunidadeView').style.display='block';
+  document.getElementById('navDirecao').classList.remove('active');
+  document.getElementById('navComunidade').classList.add('active');
+}
+
+document.getElementById('navDirecao').addEventListener('click',showDirectionView);
+document.getElementById('navComunidade').addEventListener('click',showComunidadeView);
+buildDirectionControls();
+wireDirectionFields();
+
+/* ---------- Init ---------- */
+function applyViewMode(){
+  const sourceNote = SHEET_API_URL ? ' · Fonte: a tua Google Sheet' : ' · Fonte: armazenamento do Claude';
+  document.getElementById('appsub').textContent = 'Comunidade de Pioneiros · III Secção · Sempre Mais Longe' + sourceNote;
+  if(IS_VIEW){
+    document.body.classList.add('view-mode');
+    document.getElementById('viewBadge').style.display = 'inline-flex';
+  } else {
+    const bar = document.getElementById('linkBar');
+    bar.style.display = 'flex';
+    document.getElementById('copyViewLinkBtn').addEventListener('click', async () => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', '1');
+      const link = url.toString();
+      try{
+        await navigator.clipboard.writeText(link);
+        const btn = document.getElementById('copyViewLinkBtn');
+        const original = btn.textContent;
+        btn.textContent = 'Link copiado!';
+        setTimeout(() => { btn.textContent = original; }, 1800);
+      }catch(e){
+        window.prompt('Copia este link:', link);
+      }
+    });
+  }
+}
+
+async function init(){
+  applyViewMode();
+  buildControls();
+  renderCalendar();
+  document.getElementById('selectedDateLabel').textContent = formatSelectedLabel(selectedKey);
+
+  // Carrega o mês diretamente. Não fazemos uma lista global de todos os dias,
+  // evitando uma chamada extra e tornando o calendário mais rápido e estável.
+  if(SHEET_API_URL){
+    await loadMonthFromSheet(viewYear, viewMonth);
+  }
+
+  try {
+    await renderDayEvents();
+  } catch(e) {
+    console.warn('Não foi possível carregar os eventos:', e);
+  }
+}
+
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(console.error);
+  });
+}
+</script>
+
+</body>
+</html>
