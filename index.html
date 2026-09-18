@@ -3,17 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#155A93">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
 <title>Comunidade 111 - Ronfe</title>
+<link rel="preload" as="image" href="./assets/header.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap"></noscript>
 <style>
   :root{
     --bg:#F4F2EC; --panel:#FFFFFF; --ink:#1C2126; --ink-soft:#61666B; --line:#DCD8CD;
@@ -870,7 +865,7 @@ body::after{
 </style>
 </head>
 <body>
-<div class="pioneer-bg" aria-hidden="true"><img loading="lazy" decoding="async" class="pbg compass" src="./assets/pioneer-compass.png" alt="" aria-hidden="true"><img loading="lazy" decoding="async" class="pbg fish" src="./assets/pioneer-fish.png" alt="" aria-hidden="true"><img loading="lazy" decoding="async" class="pbg axe" src="./assets/pioneer-axe.png" alt="" aria-hidden="true"><img loading="lazy" decoding="async" class="pbg drop" src="./assets/pioneer-drop.png" alt="" aria-hidden="true"></div>
+<div class="pioneer-bg" aria-hidden="true"><img class="pbg compass" src="./assets/pioneer-compass.png" alt="" aria-hidden="true"><img class="pbg fish" src="./assets/pioneer-fish.png" alt="" aria-hidden="true"><img class="pbg axe" src="./assets/pioneer-axe.png" alt="" aria-hidden="true"><img class="pbg drop" src="./assets/pioneer-drop.png" alt="" aria-hidden="true"></div>
 <div class="app">
   <div class="apptitle">Comunidade 111 - Ronfe</div>
   <div class="appsub" id="appsub">Comunidade de Pioneiros · III Secção · Sempre Mais Longe</div>
@@ -878,9 +873,8 @@ body::after{
   
   <header class="brand-header" aria-label="Orienta-te · Ronfe · Comunidade 111">
     <img
-      loading="eager" decoding="async"
       class="brand-header-image"
-      src="./assets/header.jpg"
+      src="./assets/header.webp"
       alt="ORIENTA-TE · RONFE · COMUNIDADE 111 — Mais que um destino, um caminho"
     >
   </header>
@@ -1010,9 +1004,8 @@ body::after{
 
   <footer class="brand-footer" aria-label="Orienta-te · Objetivos">
     <img
-      loading="lazy" decoding="async"
       class="brand-footer-image"
-      src="./assets/footer.jpg"
+      src="./assets/footer.webp"
       alt="Explorar · Planear · Descobrir · Superar · Crescer · Orienta-te"
     >
   </footer>
@@ -1252,6 +1245,17 @@ async function loadMonthFromSheet(year, month){
   try{
     let days = {};
     let monthLoaded = false;
+
+    // Pinta primeiro a cache local do mês, sem esperar pela rede.
+    try{
+      const cachedPrefix = monthPrefix + '-';
+      for(let d=1; d<=31; d++){
+        const key = cachedPrefix + pad2(d);
+        const local = localDayGet(key);
+        if(local){ cache[key]=local; dayIndex.add(key); days[key]=local; }
+      }
+      renderCalendarCellsFromCache();
+    }catch(e){}
 
     // Primeiro tenta a leitura mensal, que é mais rápida.
     try{
@@ -1896,38 +1900,52 @@ function addResp(ev){
 }
 
 /* ---------- PDF export — layout baseado no modelo "Formato para jogo" ---------- */
+let PDF_BRAND_HEADER = null;
+let PDF_BRAND_FOOTER = null;
+let PDF_BRAND_COMPASS = null;
+let _scriptLoads = {};
+function loadScriptOnce(src){
+  if(_scriptLoads[src]) return _scriptLoads[src];
+  _scriptLoads[src] = new Promise((resolve,reject)=>{
+    const existing=[...document.scripts].find(x=>x.src===src);
+    if(existing && window.jspdf?.jsPDF){ resolve(); return; }
+    const sc=document.createElement('script');
+    sc.src=src; sc.async=true; sc.onload=resolve; sc.onerror=()=>reject(new Error('Falha ao carregar '+src));
+    document.head.appendChild(sc);
+  });
+  return _scriptLoads[src];
+}
+function imageUrlToDataUrl(url){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas'); c.width=img.naturalWidth; c.height=img.naturalHeight;
+      const ctx=c.getContext('2d'); ctx.drawImage(img,0,0); resolve(c.toDataURL('image/jpeg',0.9));
+    };
+    img.onerror=()=>reject(new Error('Falha ao carregar '+url));
+    img.src=url;
+  });
+}
+async function ensurePdfAssets(){
+  if(!window.jspdf?.jsPDF) await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  if(!PDF_BRAND_HEADER){
+    [PDF_BRAND_HEADER,PDF_BRAND_FOOTER,PDF_BRAND_COMPASS]=await Promise.all([
+      imageUrlToDataUrl(PDF_BRAND_HEADER_URL), imageUrlToDataUrl(PDF_BRAND_FOOTER_URL), imageUrlToDataUrl(PDF_BRAND_COMPASS_URL)
+    ]);
+  }
+}
 const PDF_BRAND_HEADER_URL = './assets/pdf-header.jpg';
 const PDF_BRAND_FOOTER_URL = './assets/pdf-footer.jpg';
 const PDF_BRAND_COMPASS_URL = './assets/pdf-compass.jpg';
-let PDF_BRAND_HEADER = null, PDF_BRAND_FOOTER = null, PDF_BRAND_COMPASS = null;
-
-function loadScriptOnce(src){
-  return new Promise((resolve,reject)=>{
-    const existing=document.querySelector('script[data-dynamic-src="'+src+'"]');
-    if(existing){ existing.addEventListener('load',resolve,{once:true}); existing.addEventListener('error',reject,{once:true}); return; }
-    const script=document.createElement('script'); script.src=src; script.async=true; script.dataset.dynamicSrc=src; script.onload=resolve; script.onerror=reject; document.head.appendChild(script);
-  });
-}
-async function imageUrlToDataUrl(url){
-  const res=await fetch(url,{cache:'force-cache'});
-  const blob=await res.blob();
-  return await new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=reject; reader.readAsDataURL(blob); });
-}
-async function ensurePdfAssets(){
-  if(!window.jspdf || !window.jspdf.jsPDF) await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-  if(!PDF_BRAND_HEADER){
-    [PDF_BRAND_HEADER,PDF_BRAND_FOOTER,PDF_BRAND_COMPASS]=await Promise.all([imageUrlToDataUrl(PDF_BRAND_HEADER_URL),imageUrlToDataUrl(PDF_BRAND_FOOTER_URL),imageUrlToDataUrl(PDF_BRAND_COMPASS_URL)]);
-  }
-}
 
 function pdfFrame(doc, firstPage=false){
   const W=doc.internal.pageSize.getWidth();
   const H=doc.internal.pageSize.getHeight();
   // Cabeçalho e rodapé são as imagens do modelo enviado, preservando a identidade gráfica.
-  doc.addImage(PDF_BRAND_HEADER,'JPEG',0,0,W,27);
-  doc.addImage(PDF_BRAND_FOOTER,'JPEG',0,H-18,W,18);
+  doc.addImage(PDF_BRAND_HEADER,'PNG',0,0,W,27);
+  doc.addImage(PDF_BRAND_FOOTER,'PNG',0,H-18,W,18);
   // Rosa dos ventos discreta no canto superior direito, como no documento de referência.
-  doc.addImage(PDF_BRAND_COMPASS,'JPEG',154,43,39,39);
+  doc.addImage(PDF_BRAND_COMPASS,'PNG',154,43,39,39);
 }
 
 function pdfStart(doc, y=45){
@@ -2018,9 +2036,9 @@ async function getMeetingNumber(ev){
 }
 
 async function exportAgendaPdf(ev){
+  await ensurePdfAssets();
   setStatus(true);
   try{
-    await ensurePdfAssets();
     if(!window.jspdf || !window.jspdf.jsPDF){
       alert('A biblioteca de PDF não carregou. Verifica a ligação à internet e volta a abrir a página.');
       return;
@@ -2060,9 +2078,9 @@ async function exportAgendaPdf(ev){
 }
 
 async function exportAtaPdf(ev){
+  await ensurePdfAssets();
   setStatus(true);
   try{
-    await ensurePdfAssets();
     if(!window.jspdf || !window.jspdf.jsPDF){
       alert('A biblioteca de PDF não carregou. Verifica a ligação à internet e volta a abrir a página.');
       return;
@@ -2532,16 +2550,13 @@ async function init(){
   renderCalendar();
   document.getElementById('selectedDateLabel').textContent = formatSelectedLabel(selectedKey);
 
-  // Carrega o mês diretamente. Não fazemos uma lista global de todos os dias,
-  // evitando uma chamada extra e tornando o calendário mais rápido e estável.
-  if(SHEET_API_URL){
-    await loadMonthFromSheet(viewYear, viewMonth);
-  }
+  // 1) Mostra imediatamente o que já existir em cache local.
+  renderCalendarCellsFromCache();
+  try { await renderDayEvents(); } catch(e) { console.warn('Não foi possível carregar os eventos:', e); }
 
-  try {
-    await renderDayEvents();
-  } catch(e) {
-    console.warn('Não foi possível carregar os eventos:', e);
+  // 2) Sincroniza com a Google Sheet em segundo plano, sem bloquear a abertura.
+  if(SHEET_API_URL){
+    loadMonthFromSheet(viewYear, viewMonth).catch(e => console.warn('Sincronização da Sheet:', e));
   }
 }
 
@@ -2552,14 +2567,5 @@ if(document.readyState === 'loading'){
   init();
 }
 </script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(console.error);
-  });
-}
-</script>
-
 </body>
 </html>
